@@ -3,7 +3,7 @@
  * Different visual styles and layouts for the resume
  */
 
-export type TemplateId = 'modern' | 'classic' | 'minimal' | 'creative' | 'executive' | 'technical' | 'devops';
+export type TemplateId = 'modern' | 'classic' | 'minimal' | 'creative' | 'executive' | 'technical' | 'devops' | 'single-page';
 
 export interface Template {
   id: TemplateId;
@@ -118,6 +118,20 @@ export const templates: Template[] = [
       sectionStyle: 'minimal',
       accentPosition: 'top',
       spacing: 'normal',
+      bulletStyle: 'disc',
+    },
+  },
+  {
+    id: 'single-page',
+    name: 'Single Page Pro',
+    description: 'Perfectly aligned single-page layout with optimal spacing',
+    preview: '📄',
+    style: {
+      layout: 'single-column',
+      headerAlignment: 'center',
+      sectionStyle: 'minimal',
+      accentPosition: 'top',
+      spacing: 'compact',
       bulletStyle: 'disc',
     },
   },

@@ -29,6 +29,11 @@ export function ResumePreview() {
     return <DevOpsTemplatePreview resume={currentResume} />;
   }
 
+  // Single page template uses compact layout
+  if (template.id === 'single-page') {
+    return <SinglePageTemplatePreview resume={currentResume} />;
+  }
+
   // Apply template-specific spacing
   const spacingMap = {
     compact: '12px',
@@ -674,3 +679,479 @@ function CustomSectionPreview({ data, title, theme }: { data: CustomData; title:
     </div>
   );
 }
+
+// Single Page Template Preview - Compact and perfectly aligned
+function SinglePageTemplatePreview({ resume }: { resume: any }) {
+  const { sections, settings } = resume;
+  const theme = settings.theme;
+  const margins = settings.layout.margins;
+  const visibleSections = sections
+    .filter((s: any) => s.visible)
+    .sort((a: any, b: any) => a.order - b.order);
+
+  return (
+    <div
+      className="bg-white"
+      style={{
+        width: `${settings.layout.pageSize.width}mm`,
+        minHeight: `${settings.layout.pageSize.height}mm`,
+        padding: `${margins.top}mm ${margins.right}mm ${margins.bottom + 5}mm ${margins.left}mm`,
+        fontFamily: theme.fontPair.body,
+        fontSize: '10.5px',
+        lineHeight: '1.4',
+      }}
+    >
+      {/* Compact Header */}
+      {visibleSections.find((s: any) => s.type === 'contact') && (
+        <SinglePageContactPreview 
+          data={visibleSections.find((s: any) => s.type === 'contact').data} 
+          theme={theme}
+        />
+      )}
+
+      {/* Professional Summary */}
+      {visibleSections.find((s: any) => s.type === 'summary') && (
+        <SinglePageSummaryPreview 
+          data={visibleSections.find((s: any) => s.type === 'summary').data} 
+          title={visibleSections.find((s: any) => s.type === 'summary').title}
+          theme={theme}
+        />
+      )}
+
+      {/* Experience */}
+      {visibleSections.find((s: any) => s.type === 'experience') && (
+        <SinglePageExperiencePreview 
+          data={visibleSections.find((s: any) => s.type === 'experience').data} 
+          title={visibleSections.find((s: any) => s.type === 'experience').title}
+          theme={theme}
+        />
+      )}
+
+      {/* Skills */}
+      {visibleSections.find((s: any) => s.type === 'skills') && (
+        <SinglePageSkillsPreview 
+          data={visibleSections.find((s: any) => s.type === 'skills').data} 
+          title={visibleSections.find((s: any) => s.type === 'skills').title}
+          theme={theme}
+        />
+      )}
+
+      {/* Education */}
+      {visibleSections.find((s: any) => s.type === 'education') && (
+        <SinglePageEducationPreview 
+          data={visibleSections.find((s: any) => s.type === 'education').data} 
+          title={visibleSections.find((s: any) => s.type === 'education').title}
+          theme={theme}
+        />
+      )}
+
+      {/* Projects */}
+      {visibleSections.find((s: any) => s.type === 'projects') && (
+        <SinglePageProjectsPreview 
+          data={visibleSections.find((s: any) => s.type === 'projects').data} 
+          title={visibleSections.find((s: any) => s.type === 'projects').title}
+          theme={theme}
+        />
+      )}
+
+      {/* Certifications */}
+      {visibleSections.find((s: any) => s.type === 'certifications') && (
+        <SinglePageCertificationsPreview 
+          data={visibleSections.find((s: any) => s.type === 'certifications').data} 
+          title={visibleSections.find((s: any) => s.type === 'certifications').title}
+          theme={theme}
+        />
+      )}
+
+      {/* Languages */}
+      {visibleSections.find((s: any) => s.type === 'languages') && (
+        <SinglePageLanguagesPreview 
+          data={visibleSections.find((s: any) => s.type === 'languages').data} 
+          title={visibleSections.find((s: any) => s.type === 'languages').title}
+          theme={theme}
+        />
+      )}
+    </div>
+  );
+}
+
+// Single Page Contact Section
+function SinglePageContactPreview({ data, theme }: { data: ContactData; theme: any }) {
+  return (
+    <div className="text-center mb-4 pb-3" style={{ borderBottom: `2px solid ${theme.primaryColor}` }}>
+      {/* Name */}
+      <h1 
+        className="text-3xl font-bold mb-1" 
+        style={{ 
+          color: theme.primaryColor,
+          fontFamily: theme.fontPair.heading,
+          letterSpacing: '0.5px'
+        }}
+      >
+        {data.fullName}
+      </h1>
+
+      {/* Title */}
+      {data.title && (
+        <p className="text-sm font-medium mb-2" style={{ color: theme.secondaryColor }}>
+          {data.title}
+        </p>
+      )}
+
+      {/* Contact Info - Compact Single Line */}
+      <div className="flex justify-center items-center gap-3 text-xs" style={{ color: '#555' }}>
+        {data.email && (
+          <span className="flex items-center gap-1">
+            <Mail size={12} />
+            {data.email}
+          </span>
+        )}
+        {data.phone && (
+          <span className="flex items-center gap-1">
+            <Phone size={12} />
+            {data.phone}
+          </span>
+        )}
+        {data.location && (
+          <span className="flex items-center gap-1">
+            <MapPin size={12} />
+            {data.location}
+          </span>
+        )}
+        {data.links?.find(l => l.type === 'linkedin') && (
+          <span className="flex items-center gap-1">
+            <Linkedin size={12} />
+            LinkedIn
+          </span>
+        )}
+        {data.links?.find(l => l.type === 'github') && (
+          <span className="flex items-center gap-1">
+            <Github size={12} />
+            GitHub
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Single Page Summary Section
+function SinglePageSummaryPreview({ data, title, theme }: { data: SummaryData; title: string; theme: any }) {
+  return (
+    <div className="mb-4">
+      <h2 
+        className="text-sm font-bold mb-1.5 uppercase tracking-wide" 
+        style={{ 
+          color: theme.primaryColor,
+          fontFamily: theme.fontPair.heading,
+          borderBottom: `1px solid ${theme.primaryColor}`,
+          paddingBottom: '2px'
+        }}
+      >
+        {title}
+      </h2>
+      <p className="text-xs leading-relaxed" style={{ color: '#333', textAlign: 'justify' }}>
+        {data.content}
+      </p>
+    </div>
+  );
+}
+
+// Single Page Experience Section
+function SinglePageExperiencePreview({ data, title, theme }: { data: ExperienceData; title: string; theme: any }) {
+  return (
+    <div className="mb-4">
+      <h2 
+        className="text-sm font-bold mb-2 uppercase tracking-wide" 
+        style={{ 
+          color: theme.primaryColor,
+          fontFamily: theme.fontPair.heading,
+          borderBottom: `1px solid ${theme.primaryColor}`,
+          paddingBottom: '2px'
+        }}
+      >
+        {title}
+      </h2>
+      <div className="space-y-2.5">
+        {data.items.map((item: ExperienceItem, idx: number) => (
+          <div key={idx}>
+            <div className="flex justify-between items-baseline mb-0.5">
+              <div>
+                <span className="font-bold text-xs" style={{ color: theme.secondaryColor }}>
+                  {item.position}
+                </span>
+                <span className="text-xs mx-1.5" style={{ color: '#666' }}>•</span>
+                <span className="text-xs font-medium" style={{ color: '#444' }}>
+                  {item.company}
+                </span>
+                {item.location && (
+                  <>
+                    <span className="text-xs mx-1.5" style={{ color: '#666' }}>•</span>
+                    <span className="text-xs" style={{ color: '#666' }}>
+                      {item.location}
+                    </span>
+                  </>
+                )}
+              </div>
+              <span className="text-xs italic" style={{ color: '#666' }}>
+                {formatDateRange(item.startDate, item.endDate, item.current)}
+              </span>
+            </div>
+            {item.description && (
+              <ul className="list-disc list-inside space-y-0.5 ml-1">
+                {item.description.split('\n').filter(line => line.trim()).map((line, i) => (
+                  <li key={i} className="text-xs" style={{ color: '#333', lineHeight: '1.3' }}>
+                    {line.trim().replace(/^[-•]\s*/, '')}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Single Page Skills Section
+function SinglePageSkillsPreview({ data, title, theme }: { data: SkillsData; title: string; theme: any }) {
+  const getLevelDots = (level: string) => {
+    const levels: { [key: string]: number } = {
+      'beginner': 1,
+      'intermediate': 2,
+      'advanced': 3,
+      'expert': 4
+    };
+    const count = levels[level.toLowerCase()] || 2;
+    return (
+      <div className="flex gap-0.5 ml-1.5">
+        {[...Array(4)].map((_, i) => (
+          <div
+            key={i}
+            className="w-1.5 h-1.5 rounded-full"
+            style={{
+              backgroundColor: i < count ? theme.primaryColor : '#d1d5db'
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="mb-4">
+      <h2 
+        className="text-sm font-bold mb-2 uppercase tracking-wide" 
+        style={{ 
+          color: theme.primaryColor,
+          fontFamily: theme.fontPair.heading,
+          borderBottom: `1px solid ${theme.primaryColor}`,
+          paddingBottom: '2px'
+        }}
+      >
+        {title}
+      </h2>
+      <div 
+        style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(2, 1fr)', 
+          gap: '8px'
+        }}
+      >
+        {data.categories.map((category, idx) => (
+          <div key={idx}>
+            <h3 className="font-semibold text-xs mb-1" style={{ color: theme.secondaryColor }}>
+              {category.name}
+            </h3>
+            <div className="space-y-0.5">
+              {category.skills.map((skill, sidx) => (
+                <div key={sidx} className="flex items-center justify-between">
+                  <span className="text-xs" style={{ color: '#444' }}>{skill.name}</span>
+                  {getLevelDots(skill.level || 'intermediate')}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Single Page Education Section
+function SinglePageEducationPreview({ data, title, theme }: { data: EducationData; title: string; theme: any }) {
+  return (
+    <div className="mb-4">
+      <h2 
+        className="text-sm font-bold mb-2 uppercase tracking-wide" 
+        style={{ 
+          color: theme.primaryColor,
+          fontFamily: theme.fontPair.heading,
+          borderBottom: `1px solid ${theme.primaryColor}`,
+          paddingBottom: '2px'
+        }}
+      >
+        {title}
+      </h2>
+      <div className="space-y-1.5">
+        {data.items.map((item: EducationItem, idx: number) => (
+          <div key={idx} className="flex justify-between items-baseline">
+            <div>
+              <span className="font-bold text-xs" style={{ color: theme.secondaryColor }}>
+                {item.degree}
+              </span>
+              {item.field && (
+                <>
+                  <span className="text-xs mx-1.5" style={{ color: '#666' }}>in</span>
+                  <span className="text-xs font-medium" style={{ color: '#444' }}>
+                    {item.field}
+                  </span>
+                </>
+              )}
+              <span className="text-xs mx-1.5" style={{ color: '#666' }}>•</span>
+              <span className="text-xs" style={{ color: '#444' }}>
+                {item.institution}
+              </span>
+              {item.gpa && (
+                <>
+                  <span className="text-xs mx-1.5" style={{ color: '#666' }}>•</span>
+                  <span className="text-xs" style={{ color: '#666' }}>
+                    GPA: {item.gpa}
+                  </span>
+                </>
+              )}
+            </div>
+            <span className="text-xs italic" style={{ color: '#666' }}>
+              {formatDateRange(item.startDate, item.endDate, false)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Single Page Projects Section
+function SinglePageProjectsPreview({ data, title, theme }: { data: ProjectsData; title: string; theme: any }) {
+  return (
+    <div className="mb-4">
+      <h2 
+        className="text-sm font-bold mb-2 uppercase tracking-wide" 
+        style={{ 
+          color: theme.primaryColor,
+          fontFamily: theme.fontPair.heading,
+          borderBottom: `1px solid ${theme.primaryColor}`,
+          paddingBottom: '2px'
+        }}
+      >
+        {title}
+      </h2>
+      <div className="space-y-2">
+        {data.items.map((item: ProjectItem, idx: number) => (
+          <div key={idx}>
+            <div className="flex justify-between items-baseline mb-0.5">
+              <span className="font-bold text-xs" style={{ color: theme.secondaryColor }}>
+                {item.name}
+              </span>
+              {item.startDate && (
+                <span className="text-xs italic" style={{ color: '#666' }}>
+                  {formatDateRange(item.startDate, item.endDate || null, false)}
+                </span>
+              )}
+            </div>
+            {item.description && (
+              <p className="text-xs leading-snug" style={{ color: '#444' }}>
+                {item.description}
+              </p>
+            )}
+            {item.technologies && item.technologies.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-0.5">
+                {item.technologies.map((tech, tidx) => (
+                  <span 
+                    key={tidx} 
+                    className="text-xs px-1.5 py-0.5 rounded"
+                    style={{ 
+                      backgroundColor: `${theme.primaryColor}15`,
+                      color: theme.primaryColor,
+                      fontSize: '9px'
+                    }}
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Single Page Certifications Section
+function SinglePageCertificationsPreview({ data, title, theme }: { data: CertificationsData; title: string; theme: any }) {
+  return (
+    <div className="mb-4">
+      <h2 
+        className="text-sm font-bold mb-2 uppercase tracking-wide" 
+        style={{ 
+          color: theme.primaryColor,
+          fontFamily: theme.fontPair.heading,
+          borderBottom: `1px solid ${theme.primaryColor}`,
+          paddingBottom: '2px'
+        }}
+      >
+        {title}
+      </h2>
+      <div className="space-y-1">
+        {data.items.map((item: CertificationItem, idx: number) => (
+          <div key={idx} className="flex justify-between items-baseline">
+            <div>
+              <span className="font-bold text-xs" style={{ color: theme.secondaryColor }}>
+                {item.name}
+              </span>
+              <span className="text-xs mx-1.5" style={{ color: '#666' }}>•</span>
+              <span className="text-xs" style={{ color: '#444' }}>
+                {item.issuer}
+              </span>
+            </div>
+            {item.date && (
+              <span className="text-xs italic" style={{ color: '#666' }}>
+                {item.date}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Single Page Languages Section
+function SinglePageLanguagesPreview({ data, title, theme }: { data: LanguagesData; title: string; theme: any }) {
+  return (
+    <div className="mb-3">
+      <h2 
+        className="text-sm font-bold mb-1.5 uppercase tracking-wide" 
+        style={{ 
+          color: theme.primaryColor,
+          fontFamily: theme.fontPair.heading,
+          borderBottom: `1px solid ${theme.primaryColor}`,
+          paddingBottom: '2px'
+        }}
+      >
+        {title}
+      </h2>
+      <div className="flex flex-wrap gap-x-4 gap-y-0.5">
+        {data.items.map((item, idx) => (
+          <span key={idx} className="text-xs" style={{ color: '#444' }}>
+            <span className="font-semibold">{item.language}</span>
+            <span className="mx-1.5" style={{ color: '#666' }}>•</span>
+            <span style={{ color: '#666' }}>{item.proficiency}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+

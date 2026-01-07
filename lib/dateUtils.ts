@@ -5,29 +5,61 @@ import { formatDistance, format, differenceInMonths, differenceInYears } from 'd
  * Example: "2 yrs 3 mos" or "6 mos"
  */
 export function calculateDuration(startDate: string, endDate: string | null): string {
-  // Handle YYYY-MM format by appending -01
-  const startStr = startDate.includes('T') || startDate.split('-').length > 2 ? startDate : `${startDate}-01`;
-  const endStr = endDate ? (endDate.includes('T') || endDate.split('-').length > 2 ? endDate : `${endDate}-01`) : null;
-  
-  const start = new Date(startStr);
-  const end = endStr ? new Date(endStr) : new Date();
-
-  const years = differenceInYears(end, start);
-  const months = differenceInMonths(end, start) % 12;
-
-  if (years === 0 && months === 0) {
-    return 'Less than a month';
+  // Return empty string if startDate is invalid
+  if (!startDate || startDate.trim() === '') {
+    return '';
   }
 
-  const parts: string[] = [];
-  if (years > 0) {
-    parts.push(`${years} yr${years > 1 ? 's' : ''}`);
-  }
-  if (months > 0) {
-    parts.push(`${months} mo${months > 1 ? 's' : ''}`);
-  }
+  try {
+    // Parse YYYY-MM format as UTC to avoid timezone issues
+    const parseDate = (dateStr: string) => {
+      if (!dateStr || dateStr.trim() === '') {
+        return null;
+      }
+      
+      if (!dateStr.includes('T') && dateStr.split('-').length === 2) {
+        const [year, month] = dateStr.split('-');
+        const yearNum = parseInt(year);
+        const monthNum = parseInt(month);
+        
+        if (isNaN(yearNum) || isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+          return null;
+        }
+        
+        return new Date(Date.UTC(yearNum, monthNum - 1, 1));
+      }
+      return new Date(dateStr);
+    };
+    
+    const start = parseDate(startDate);
+    if (!start || isNaN(start.getTime())) {
+      return '';
+    }
+    
+    const end = endDate ? parseDate(endDate) : new Date();
+    if (!end || isNaN(end.getTime())) {
+      return '';
+    }
 
-  return parts.join(' ');
+    const years = differenceInYears(end, start);
+    const months = differenceInMonths(end, start) % 12;
+
+    if (years === 0 && months === 0) {
+      return 'Less than a month';
+    }
+
+    const parts: string[] = [];
+    if (years > 0) {
+      parts.push(`${years} yr${years > 1 ? 's' : ''}`);
+    }
+    if (months > 0) {
+      parts.push(`${months} mo${months > 1 ? 's' : ''}`);
+    }
+
+    return parts.join(' ');
+  } catch (error) {
+    return '';
+  }
 }
 
 /**
@@ -35,9 +67,46 @@ export function calculateDuration(startDate: string, endDate: string | null): st
  * Handles both full ISO dates and YYYY-MM format from month inputs
  */
 export function formatDate(date: string, formatStr: string = 'MMM yyyy'): string {
-  // If date is in YYYY-MM format (from month input), append -01 to make it a valid date
-  const dateStr = date.includes('T') || date.split('-').length > 2 ? date : `${date}-01`;
-  return format(new Date(dateStr), formatStr);
+  // Return empty string if date is invalid or empty
+  if (!date || date.trim() === '') {
+    return '';
+  }
+
+  try {
+    // If date is in YYYY-MM format (from month input), parse as UTC to avoid timezone issues
+    if (!date.includes('T') && date.split('-').length === 2) {
+      const [year, month] = date.split('-');
+      const yearNum = parseInt(year);
+      const monthNum = parseInt(month);
+      
+      // Validate year and month ranges
+      if (isNaN(yearNum) || isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+        return '';
+      }
+      
+      // Create UTC date to avoid timezone offset issues
+      const utcDate = new Date(Date.UTC(yearNum, monthNum - 1, 1));
+      
+      // Check if date is valid
+      if (isNaN(utcDate.getTime())) {
+        return '';
+      }
+      
+      return format(utcDate, formatStr);
+    }
+    
+    const dateObj = new Date(date);
+    
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return '';
+    }
+    
+    return format(dateObj, formatStr);
+  } catch (error) {
+    // Return empty string on any error
+    return '';
+  }
 }
 
 /**
