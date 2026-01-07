@@ -1,0 +1,198 @@
+'use client';
+
+import { useResumeStore } from '@/stores';
+import { 
+  DndContext, 
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { 
+  User, 
+  FileText, 
+  Briefcase, 
+  GraduationCap, 
+  Code, 
+  Languages,
+  FolderOpen,
+  Award,
+  Plus,
+  GripVertical
+} from 'lucide-react';
+import { SectionType, ResumeSection } from '@/types';
+
+const sectionIcons: Record<SectionType, any> = {
+  contact: User,
+  summary: FileText,
+  experience: Briefcase,
+  education: GraduationCap,
+  skills: Code,
+  languages: Languages,
+  projects: FolderOpen,
+  certifications: Award,
+  custom: Plus,
+};
+
+interface SortableSectionItemProps {
+  section: ResumeSection;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+function SortableSectionItem({ section, isActive, onClick }: SortableSectionItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: section.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const Icon = sectionIcons[section.type] || FileText;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-1 group"
+    >
+      <button
+        {...listeners}
+        {...attributes}
+        className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
+      >
+        <GripVertical className="w-4 h-4" />
+      </button>
+      
+      <button
+        onClick={onClick}
+        className={`
+          flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors
+          ${isActive 
+            ? 'bg-primary-50 text-primary-700 font-medium' 
+            : 'text-gray-700 hover:bg-gray-50'
+          }
+        `}
+      >
+        <Icon className="w-4 h-4" />
+        <span className="text-sm">{section.title}</span>
+      </button>
+    </div>
+  );
+}
+
+export function Sidebar() {
+  const currentResume = useResumeStore((state) => state.currentResume);
+  const activeSection = useResumeStore((state) => state.activeSection);
+  const setActiveSection = useResumeStore((state) => state.setActiveSection);
+  const addSection = useResumeStore((state) => state.addSection);
+  const reorderSections = useResumeStore((state) => state.reorderSections);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  if (!currentResume) return null;
+
+  const sections = currentResume.sections
+    .filter((s) => s.visible)
+    .sort((a, b) => a.order - b.order);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = sections.findIndex((s) => s.id === active.id);
+      const newIndex = sections.findIndex((s) => s.id === over.id);
+
+      const reordered = arrayMove(sections, oldIndex, newIndex);
+      reorderSections(reordered);
+    }
+  };
+
+  const handleAddSection = () => {
+    // Show a dialog to select section type
+    const sectionType = prompt('Enter section type (experience, education, skills, etc.):');
+    if (sectionType) {
+      addSection({
+        type: sectionType as SectionType,
+        visible: true,
+        title: sectionType.charAt(0).toUpperCase() + sectionType.slice(1),
+        data: { items: [] } as any,
+      });
+    }
+  };
+
+  return (
+    <div className="w-64 border-r border-gray-200 bg-white">
+      <div className="p-4">
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          Sections
+        </h2>
+        
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={sections.map(s => s.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-1">
+              {sections.map((section) => (
+                <SortableSectionItem
+                  key={section.id}
+                  section={section}
+                  isActive={activeSection === section.id}
+                  onClick={() => setActiveSection(section.id)}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+
+        <button
+          onClick={handleAddSection}
+          className="w-full flex items-center gap-3 px-3 py-2 mt-4 text-sm font-medium text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Add Section
+        </button>
+      </div>
+
+      <div className="border-t border-gray-200 p-4 mt-auto">
+        <div className="text-xs text-gray-500">
+          <p className="font-medium mb-1">Resume Score</p>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div className="bg-green-500 h-2 rounded-full" style={{ width: '75%' }} />
+            </div>
+            <span className="font-medium">75%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
