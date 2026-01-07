@@ -1,0 +1,23 @@
+{
+  "name": "ats-resume-builder",
+  "version": "1.0.0",
+  "description": "ATS-friendly resume builder with intelligent scoring and job matching",
+  "author": "Your Name",
+  "license": "MIT",
+  "keywords": [
+    "resume",
+    "ATS",
+    "career",
+    "job",
+    "builder",
+    "cv"
+  ],
+  "scripts": {
+    "setup": "npm run setup-backend && npm run setup-frontend",
+    "setup-backend": "cd backend && python -m venv venv && venv\\Scripts\\activate && pip install -r requirements.txt",
+    "setup-frontend": "cd frontend && npm install",
+    "start-backend": "cd backend && venv\\Scripts\\activate && python app.py",
+    "start-frontend": "cd frontend && npm start",
+    "build": "cd frontend && npm run build"
+  }
+}
