@@ -11,6 +11,7 @@ import { JobMatcherModal } from '@/components/features/JobMatcherModal';
 import { TemplatePickerModal } from '@/components/features/TemplatePickerModal';
 import SemanticAnalyzerModal from '@/components/features/SemanticAnalyzerModal';
 import FluffDetectorModal from '@/components/features/FluffDetectorModal';
+import { motion } from 'framer-motion';
 import { 
   Save, 
   Download, 
@@ -22,7 +23,8 @@ import {
   TrendingUp,
   Layout,
   Lightbulb,
-  AlertCircle
+  AlertCircle,
+  Sparkles
 } from 'lucide-react';
 
 export function Toolbar() {
@@ -89,138 +91,178 @@ export function Toolbar() {
 
   return (
     <>
-      <div className="h-16 border-b border-gray-200 bg-white px-6 flex items-center justify-between">
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="h-16 border-b border-white/20 backdrop-blur-xl bg-gradient-to-r from-purple-600/90 to-pink-600/90 px-6 flex items-center justify-between shadow-lg\"
+      >
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <FileText className="w-6 h-6 text-primary-600" />
-          <h1 className="text-xl font-bold">ProResume Architect</h1>
-        </div>
+        <motion.div 
+          className="flex items-center gap-2"
+          whileHover={{ scale: 1.05 }}
+        >
+          <div className="relative">
+            <FileText className="w-6 h-6 text-white" />
+            <motion.div
+              className="absolute -top-1 -right-1"
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Sparkles className="w-3 h-3 text-yellow-300" />
+            </motion.div>
+          </div>
+          <h1 className="text-xl font-bold text-white">ProResume Architect</h1>
+        </motion.div>
         
         {currentResume && (
-          <span className="text-sm text-gray-500 border-l pl-4">
+          <motion.span 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-sm text-white/80 border-l border-white/20 pl-4"
+          >
             {currentResume.metadata.title}
-          </span>
+          </motion.span>
         )}
       </div>
 
       <div className="flex items-center gap-2">
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleSaveVersion}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white backdrop-blur-md bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20 shadow-lg"
           title="Save Version"
         >
           <Save className="w-4 h-4" />
           Save Version
-        </button>
+        </motion.button>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowVersionHistory(true)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white backdrop-blur-md bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20 shadow-lg"
           title="Version History"
         >
           <History className="w-4 h-4" />
           History
-        </button>
+        </motion.button>
 
-        <div className="w-px h-6 bg-gray-300" />
+        <div className="w-px h-6 bg-white/20" />
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleImport}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white backdrop-blur-md bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20 shadow-lg"
           title="Import Resume"
         >
           <Upload className="w-4 h-4" />
           Import
-        </button>
+        </motion.button>
 
         <div className="relative group">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleExportPDF}
             disabled={isExporting}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-white hover:bg-gray-50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             title="Export as PDF"
           >
             <Download className="w-4 h-4" />
             {isExporting ? 'Exporting...' : 'Export PDF'}
-          </button>
+          </motion.button>
           
-          {/* Dropdown menu */}
-          <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+          {/* Dropdown menu with glass effect */}
+          <div className="absolute right-0 top-full mt-2 w-48 backdrop-blur-xl bg-white/90 rounded-lg shadow-2xl border border-white/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
             <button
               onClick={handleExportPDF}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg"
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 rounded-t-lg transition-colors"
             >
               Export as PDF
             </button>
             <button
               onClick={handleExportJSON}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-lg"
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 rounded-b-lg transition-colors"
             >
               Export as JSON
             </button>
           </div>
         </div>
 
-        <div className="w-px h-6 bg-gray-300" />
+        <div className="w-px h-6 bg-white/20" />
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowTemplatePicker(true)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white backdrop-blur-md bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20 shadow-lg"
           title="Change Template"
         >
           <Layout className="w-4 h-4" />
           Template
-        </button>
+        </motion.button>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowATSChecker(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-700 bg-green-100/80 hover:bg-green-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
           title="ATS Checker"
         >
           <CheckCircle className="w-4 h-4" />
           ATS Score
-        </button>
+        </motion.button>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowJobMatcher(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100/80 hover:bg-blue-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
           title="Job Description Matcher"
         >
           <TrendingUp className="w-4 h-4" />
           Job Match
-        </button>
+        </motion.button>
 
-        <div className="w-px h-6 bg-gray-300" />
+        <div className="w-px h-6 bg-white/20" />
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowSemanticAnalyzer(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-700 bg-purple-100/80 hover:bg-purple-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
           title="Semantic Job Mapper"
         >
           <Lightbulb className="w-4 h-4" />
           Semantic
-        </button>
+        </motion.button>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowFluffDetector(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-700 bg-red-100/80 hover:bg-red-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
           title="Fluff Detector"
         >
           <AlertCircle className="w-4 h-4" />
           Fluff
-        </button>
+        </motion.button>
 
-        <div className="w-px h-6 bg-gray-300" />
+        <div className="w-px h-6 bg-white/20" />
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2, rotate: 90 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowSettings(true)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white backdrop-blur-md bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20 shadow-lg"
           title="Settings"
         >
           <Settings className="w-4 h-4" />
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
 
       <VersionHistoryModal 
         isOpen={showVersionHistory} 

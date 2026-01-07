@@ -1,6 +1,7 @@
 'use client';
 
 import { useResumeStore } from '@/stores';
+import { motion } from 'framer-motion';
 import { 
   DndContext, 
   closestCenter,
@@ -69,15 +70,18 @@ function SortableSectionItem({ section, isActive, onClick }: SortableSectionItem
   const Icon = sectionIcons[section.type] || FileText;
 
   return (
-    <div
+    <motion.div
       ref={setNodeRef}
       style={style}
       className="flex items-center gap-1 group"
+      initial={{ x: -20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      whileHover={{ x: 4 }}
     >
       <button
         {...listeners}
         {...attributes}
-        className="p-1.5 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing"
+        className="p-1.5 text-gray-400 hover:text-purple-600 cursor-grab active:cursor-grabbing transition-colors"
       >
         <GripVertical className="w-4 h-4" />
       </button>
@@ -85,17 +89,17 @@ function SortableSectionItem({ section, isActive, onClick }: SortableSectionItem
       <button
         onClick={onClick}
         className={`
-          flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors
+          flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-all duration-200
           ${isActive 
-            ? 'bg-primary-50 text-primary-700 font-medium' 
-            : 'text-gray-700 hover:bg-gray-50'
+            ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 font-medium shadow-md' 
+            : 'text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50'
           }
         `}
       >
         <Icon className="w-4 h-4" />
         <span className="text-sm">{section.title}</span>
       </button>
-    </div>
+    </motion.div>
   );
 }
 
