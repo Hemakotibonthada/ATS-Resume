@@ -32,33 +32,20 @@ export default function BuilderPage() {
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      {/* Subtle animated background */}
-      <div className="absolute inset-0 overflow-hidden opacity-30">
+      {/* Subtle animated background - optimized */}
+      <div className="absolute inset-0 overflow-hidden opacity-20 pointer-events-none">
         <motion.div
           className="absolute w-96 h-96 bg-purple-300 rounded-full blur-3xl"
           animate={{
-            x: [0, 50, 0],
-            y: [0, -50, 0],
+            x: [0, 30, 0],
+            y: [0, -30, 0],
           }}
           transition={{
-            duration: 15,
+            duration: 10,
             repeat: Infinity,
             ease: "easeInOut"
           }}
           style={{ top: '-10%', left: '-10%' }}
-        />
-        <motion.div
-          className="absolute w-96 h-96 bg-pink-300 rounded-full blur-3xl"
-          animate={{
-            x: [0, -50, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          style={{ bottom: '-10%', right: '-10%' }}
         />
       </div>
 
@@ -67,7 +54,7 @@ export default function BuilderPage() {
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }}
         >
           <Toolbar />
         </motion.div>
@@ -78,8 +65,8 @@ export default function BuilderPage() {
           <motion.div
             initial={{ x: -20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="backdrop-blur-xl bg-white/60 border-r border-white/20 shadow-xl"
+            transition={{ duration: 0.3 }}
+            className="bg-white/80 border-r border-white/20 shadow-lg"
           >
             <Sidebar />
           </motion.div>
@@ -88,8 +75,8 @@ export default function BuilderPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex-1 overflow-y-auto border-r border-white/20 backdrop-blur-xl bg-white/70 shadow-xl"
+            transition={{ duration: 0.3 }}
+            className="flex-1 overflow-y-auto border-r border-white/20 bg-white/90 shadow-lg"
           >
             <ResumeEditor />
           </motion.div>
@@ -98,8 +85,8 @@ export default function BuilderPage() {
           <motion.div
             initial={{ x: 20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="w-[600px] overflow-y-auto backdrop-blur-xl bg-gradient-to-br from-white/80 to-purple-50/80 p-8 shadow-2xl"
+            transition={{ duration: 0.3 }}
+            className="w-[600px] overflow-y-auto bg-gradient-to-br from-white/90 to-purple-50/80 p-8 shadow-xl"
           >
             <ResumePreview />
           </motion.div>

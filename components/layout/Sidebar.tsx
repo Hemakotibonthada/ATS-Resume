@@ -76,7 +76,8 @@ function SortableSectionItem({ section, isActive, onClick }: SortableSectionItem
       className="flex items-center gap-1 group"
       initial={{ x: -20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      whileHover={{ x: 4 }}
+      transition={{ duration: 0.2 }}
+      whileHover={{ x: 2 }}
     >
       <button
         {...listeners}

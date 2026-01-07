@@ -47,7 +47,7 @@ export function TemplatePickerModal({ isOpen, onClose }: TemplatePickerModalProp
               <div className="flex items-center gap-3">
                 <motion.div
                   animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
                 >
                   <Sparkles className="w-6 h-6 text-purple-600" />
                 </motion.div>
@@ -150,11 +150,11 @@ function TemplateCard({
   return (
     <motion.button
       onClick={onClick}
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.05, y: -5 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 300 }}
+      whileHover={{ scale: 1.03, y: -3 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={`
         relative p-4 rounded-xl border-2 transition-all text-left overflow-hidden
         ${isSelected 
@@ -167,28 +167,16 @@ function TemplateCard({
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 500, delay: 0.1 }}
+          transition={{ type: "spring", stiffness: 500, damping: 30, delay: 0.1 }}
           className="absolute top-2 right-2 w-6 h-6 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center shadow-lg"
         >
           <Check className="w-4 h-4 text-white" />
         </motion.div>
       )}
       
-      {isSelected && (
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20"
-          animate={{
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      )}
-      
       <div className="relative z-10">
         <motion.div
           className="text-4xl mb-3"
-          animate={isSelected ? { scale: [1, 1.1, 1] } : {}}
-          transition={{ duration: 0.5 }}
         >
           {template.preview}
         </motion.div>

@@ -93,8 +93,7 @@ export function Toolbar() {
     <>
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="h-16 border-b border-white/20 backdrop-blur-xl bg-gradient-to-r from-purple-600/90 to-pink-600/90 px-6 flex items-center justify-between shadow-lg\"
+        animate={{ y: 0, opacity: 1 }}        transition={{ duration: 0.3 }}        className="h-16 border-b border-white/20 backdrop-blur-xl bg-gradient-to-r from-purple-600/90 to-pink-600/90 px-6 flex items-center justify-between shadow-lg\"
       >
       <div className="flex items-center gap-4">
         <motion.div 
@@ -106,7 +105,7 @@ export function Toolbar() {
             <motion.div
               className="absolute -top-1 -right-1"
               animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
+              transition={{ duration: 1.5, repeat: Infinity }}
             >
               <Sparkles className="w-3 h-3 text-yellow-300" />
             </motion.div>

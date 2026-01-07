@@ -20,33 +20,20 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 overflow-hidden relative">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Animated background elements - optimized */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none\">
         <motion.div
           className="absolute w-96 h-96 bg-white/10 rounded-full blur-3xl"
           animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
+            x: [0, 50, 0],
+            y: [0, -50, 0],
           }}
           transition={{
-            duration: 20,
+            duration: 12,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: \"easeInOut\"
           }}
           style={{ top: '10%', left: '10%' }}
-        />
-        <motion.div
-          className="absolute w-96 h-96 bg-white/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 100, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          style={{ bottom: '10%', right: '10%' }}
         />
       </div>
 

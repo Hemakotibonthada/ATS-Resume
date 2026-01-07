@@ -85,10 +85,10 @@ export function ResumeEditor() {
     <AnimatePresence mode="wait">
       <motion.div
         key={section.id}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.3 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
         className="p-8"
       >
         <div className="max-w-3xl mx-auto">
