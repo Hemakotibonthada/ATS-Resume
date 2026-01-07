@@ -1,7 +1,9 @@
 /**
  * AI-powered bullet point suggestions
- * Uses simple heuristics for now - can be integrated with OpenAI/Ollama later
+ * Uses OpenAI API when available, falls back to heuristics
  */
+
+import { generateBulletPointSuggestions } from './openai';
 
 export interface BulletPointSuggestion {
   original: string;
@@ -22,9 +24,31 @@ const metrics = [
 ];
 
 /**
- * Analyze a bullet point and suggest improvements
+ * Analyze a bullet point and suggest improvements using OpenAI
  */
-export function analyzeBulletPoint(text: string): BulletPointSuggestion {
+export async function analyzeBulletPoint(text: string, context?: string): Promise<BulletPointSuggestion> {
+  // Try OpenAI first
+  try {
+    const aiSuggestions = await generateBulletPointSuggestions(text, context);
+    if (aiSuggestions.length > 0) {
+      return {
+        original: text,
+        suggestions: aiSuggestions,
+        reasoning: 'AI-powered suggestions based on professional resume writing best practices.'
+      };
+    }
+  } catch (error) {
+    console.log('Falling back to heuristic suggestions');
+  }
+
+  // Fallback to heuristic analysis
+  return analyzeBulletPointHeuristic(text);
+}
+
+/**
+ * Heuristic-based analysis (fallback when OpenAI is not available)
+ */
+function analyzeBulletPointHeuristic(text: string): BulletPointSuggestion {
   const suggestions: string[] = [];
   let reasoning = '';
 

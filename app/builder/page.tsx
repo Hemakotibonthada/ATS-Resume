@@ -6,6 +6,7 @@ import { ResumePreview } from '@/components/preview/ResumePreview';
 import { Toolbar } from '@/components/layout/Toolbar';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { motion } from 'framer-motion';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
 export default function BuilderPage() {
   const currentResume = useResumeStore((state) => state.currentResume);
@@ -71,25 +72,37 @@ export default function BuilderPage() {
             <Sidebar />
           </motion.div>
 
-          {/* Center - Editor Pane with glass effect */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="flex-1 overflow-y-auto border-r border-white/20 bg-white/90 shadow-lg"
-          >
-            <ResumeEditor />
-          </motion.div>
+          {/* Resizable panels for Editor and Preview */}
+          <PanelGroup direction="horizontal" className="flex-1">
+            {/* Center - Editor Pane with glass effect */}
+            <Panel defaultSize={45} minSize={30}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="h-full overflow-y-auto bg-white/90 shadow-lg"
+              >
+                <ResumeEditor />
+              </motion.div>
+            </Panel>
 
-          {/* Right - Preview Pane with enhanced glass effect */}
-          <motion.div
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="w-[600px] overflow-y-auto bg-gradient-to-br from-white/90 to-purple-50/80 p-8 shadow-xl"
-          >
-            <ResumePreview />
-          </motion.div>
+            {/* Resize Handle */}
+            <PanelResizeHandle className="w-1 bg-purple-300/50 hover:bg-purple-500 transition-colors cursor-col-resize relative group">
+              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 bg-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </PanelResizeHandle>
+
+            {/* Right - Preview Pane with enhanced glass effect */}
+            <Panel defaultSize={55} minSize={30}>
+              <motion.div
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="h-full overflow-y-auto overflow-x-auto bg-gradient-to-br from-white/90 to-purple-50/80 p-8 shadow-xl"
+              >
+                <ResumePreview />
+              </motion.div>
+            </Panel>
+          </PanelGroup>
         </div>
       </div>
     </div>

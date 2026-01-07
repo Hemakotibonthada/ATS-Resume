@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { analyzeBulletPoint, generateBulletPoints } from '@/lib/aiSuggestions';
-import { Sparkles, X, Copy, Check, Lightbulb } from 'lucide-react';
+import { Sparkles, X, Copy, Check, Lightbulb, Loader2 } from 'lucide-react';
 
 interface AISuggestionsModalProps {
   isOpen: boolean;
@@ -22,10 +22,52 @@ export function AISuggestionsModal({
   onApply,
 }: AISuggestionsModalProps) {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [reasoning, setReasoning] = useState<string>('');
+
+  useEffect(() => {
+    if (isOpen && currentText) {
+      loadSuggestions();
+    }
+  }, [isOpen, currentText]);
+
+  const loadSuggestions = async () => {
+    setLoading(true);
+    try {
+      // Try API first (uses OpenAI)
+      const response = await fetch('/api/ai/suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bulletPoint: currentText,
+          context: jobTitle ? `Job Title: ${jobTitle} at ${company}` : undefined
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestions(data.suggestions || []);
+        setReasoning(data.reasoning || '');
+      } else {
+        // Fallback to client-side analysis
+        const analysis = await analyzeBulletPoint(currentText, jobTitle);
+        setSuggestions(analysis.suggestions);
+        setReasoning(analysis.reasoning);
+      }
+    } catch (error) {
+      console.error('Error loading suggestions:', error);
+      // Fallback to client-side analysis
+      const analysis = await analyzeBulletPoint(currentText, jobTitle);
+      setSuggestions(analysis.suggestions);
+      setReasoning(analysis.reasoning);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
-  const analysis = analyzeBulletPoint(currentText);
   const generatedPoints = jobTitle && company ? generateBulletPoints(jobTitle, company) : [];
 
   const handleCopy = (text: string, index: number) => {
@@ -70,24 +112,29 @@ export function AISuggestionsModal({
           </div>
 
           {/* Analysis & Reasoning */}
-          {analysis.reasoning && (
+          {loading ? (
+            <div className="mb-6 p-8 bg-purple-50 rounded-lg border border-purple-200 flex flex-col items-center justify-center">
+              <Loader2 className="w-8 h-8 text-purple-600 animate-spin mb-3" />
+              <p className="text-sm text-purple-800">Generating AI-powered suggestions...</p>
+            </div>
+          ) : reasoning && (
             <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <div className="flex items-start gap-2">
                 <Lightbulb className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <h3 className="text-sm font-semibold text-blue-900 mb-1">Analysis</h3>
-                  <p className="text-sm text-blue-800">{analysis.reasoning}</p>
+                  <p className="text-sm text-blue-800">{reasoning}</p>
                 </div>
               </div>
             </div>
           )}
 
           {/* Suggestions */}
-          {analysis.suggestions.length > 0 && (
+          {!loading && suggestions.length > 0 && (
             <div className="mb-6">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Suggested Improvements</h3>
               <div className="space-y-3">
-                {analysis.suggestions.map((suggestion, idx) => (
+                {suggestions.map((suggestion, idx) => (
                   <div
                     key={idx}
                     className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200 hover:border-purple-300 transition-colors"
