@@ -19,7 +19,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
   if (!currentResume) return null;
 
   // Ensure theme object exists with defaults
-  const theme = currentResume.theme || {
+  const theme = (currentResume as any).theme || {
     primaryColor: '#3b82f6',
     fontFamily: 'Inter, sans-serif',
     fontSize: '11px',
@@ -32,7 +32,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
         ...theme,
         primaryColor: color,
       },
-    });
+    } as any);
   };
 
   const handleFontChange = (font: string) => {
@@ -41,7 +41,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
         ...theme,
         fontFamily: font,
       },
-    });
+    } as any);
   };
 
   const handleFontSizeChange = (size: 'small' | 'medium' | 'large') => {
@@ -51,7 +51,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
         ...theme,
         fontSize: sizeMap[size],
       },
-    });
+    } as any);
   };
 
   const handleSpacingChange = (spacing: 'compact' | 'normal' | 'relaxed') => {
@@ -60,7 +60,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
         ...theme,
         spacing,
       },
-    });
+    } as any);
   };
 
   const toggleSectionVisibility = (sectionId: string) => {
@@ -100,13 +100,15 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.1 }}
           className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.15 }}
             onClick={(e) => e.stopPropagation()}
             className="backdrop-blur-xl bg-white/95 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col border border-white/20"
           >
@@ -144,7 +146,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
                         key={color.value}
                         onClick={() => handleThemeColorChange(color.value)}
                         className={`
-                          relative h-12 rounded-lg border-2 transition-all hover:scale-105
+                          relative h-12 rounded-lg border-2 transition-colors
                           ${theme.primaryColor === color.value
                             ? 'border-purple-600 ring-2 ring-purple-200'
                             : 'border-gray-200'
