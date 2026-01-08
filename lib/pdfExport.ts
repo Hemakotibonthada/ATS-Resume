@@ -6,31 +6,85 @@ import { generateGhostTextLayer } from './ghostTextLayer';
  * Includes invisible ghost text layer for ATS parsing
  */
 export async function exportToPDF(resume: Resume): Promise<void> {
-  // Create a new window with the resume content
-  const printWindow = window.open('', '_blank');
-  
-  if (!printWindow) {
-    throw new Error('Failed to open print window. Please allow popups.');
-  }
+  try {
+    // Wait a moment for any rendering to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Get the preview HTML content - look for the visible one
+    const previewElements = document.querySelectorAll('.a4-page');
+    console.log('Found preview elements:', previewElements.length);
+    
+    let previewElement: Element | null = null;
+    
+    // Find the visible preview element
+    for (let i = 0; i < previewElements.length; i++) {
+      const el = previewElements[i] as HTMLElement;
+      console.log(`Element ${i}:`, {
+        offsetParent: el.offsetParent,
+        offsetWidth: el.offsetWidth,
+        offsetHeight: el.offsetHeight,
+        className: el.className
+      });
+      if (el.offsetParent !== null && el.offsetWidth > 0 && el.offsetHeight > 0) { // Check if visible and rendered
+        previewElement = el;
+        console.log('Selected visible element:', i);
+        break;
+      }
+    }
+    
+    if (!previewElement && previewElements.length > 0) {
+      // Fallback: try to find any element with content
+      for (let i = 0; i < previewElements.length; i++) {
+        const el = previewElements[i] as HTMLElement;
+        if (el.innerHTML.trim().length > 100) { // Has content
+          previewElement = el;
+          console.log('Selected element with content:', i);
+          break;
+        }
+      }
+    }
+    
+    if (!previewElement) {
+      previewElement = previewElements[0]; // Fallback to first one
+      console.log('Using first element as fallback');
+    }
+    
+    if (!previewElement) {
+      console.error('No .a4-page elements found in DOM');
+      alert('Cannot find resume preview. Please make sure the resume is displayed.');
+      throw new Error('Preview not found');
+    }
 
-  // Get the preview HTML content
-  const previewElement = document.querySelector('.a4-page');
-  if (!previewElement) {
-    throw new Error('Preview not found');
-  }
+    // Create a new window with the resume content
+    const printWindow = window.open('', '_blank');
+    
+    if (!printWindow) {
+      alert('Please allow popups to export PDF. Check your browser settings.');
+      throw new Error('Failed to open print window. Please allow popups.');
+    }
 
   // Get computed styles
-  const styles = Array.from(document.styleSheets)
-    .map((styleSheet) => {
-      try {
-        return Array.from(styleSheet.cssRules)
-          .map((rule) => rule.cssText)
-          .join('\n');
-      } catch (e) {
-        return '';
-      }
-    })
-    .join('\n');
+  let styles = '';
+  try {
+    styles = Array.from(document.styleSheets)
+      .map((styleSheet) => {
+        try {
+          // Skip external stylesheets that might cause CORS issues
+          if (styleSheet.href && !styleSheet.href.startsWith(window.location.origin)) {
+            return '';
+          }
+          return Array.from(styleSheet.cssRules || [])
+            .map((rule) => rule.cssText)
+            .join('\n');
+        } catch (e) {
+          console.warn('Could not access stylesheet:', e);
+          return '';
+        }
+      })
+      .join('\n');
+  } catch (e) {
+    console.warn('Error collecting styles:', e);
+  }
 
   // Generate ghost text layer for ATS parsing
   const ghostText = generateGhostTextLayer(resume);
@@ -108,14 +162,35 @@ export async function exportToPDF(resume: Resume): Promise<void> {
   // Wait for content to load
   printWindow.onload = () => {
     setTimeout(() => {
-      printWindow.print();
-      
-      // Close after print dialog is dismissed
-      setTimeout(() => {
-        printWindow.close();
-      }, 100);
+      try {
+        printWindow.print();
+        
+        // Close after print dialog is dismissed
+        setTimeout(() => {
+          printWindow.close();
+        }, 100);
+      } catch (err) {
+        console.error('Print error:', err);
+        alert('Print dialog failed. Your PDF may still be ready.');
+      }
     }, 500);
   };
+  
+  // Fallback if onload doesn't fire
+  setTimeout(() => {
+    if (printWindow && !printWindow.closed) {
+      try {
+        printWindow.print();
+      } catch (err) {
+        console.error('Fallback print error:', err);
+      }
+    }
+  }, 2000);
+  
+  } catch (error) {
+    console.error('PDF Export Error:', error);
+    throw error;
+  }
 }
 
 /**

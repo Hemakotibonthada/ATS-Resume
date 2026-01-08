@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { GripVertical, Trash2, Eye, EyeOff } from 'lucide-react';
+import { GripVertical, Trash2, Eye, EyeOff, Edit2 } from 'lucide-react';
 import { useResumeStore } from '@/stores';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -25,6 +25,8 @@ export function DraggableSection({
   const currentResume = useResumeStore((state) => state.currentResume);
   const updateSection = useResumeStore((state) => state.updateSection);
   const deleteSection = useResumeStore((state) => state.deleteSection);
+  const setActiveSection = useResumeStore((state) => state.setActiveSection);
+  const setIsEditing = useResumeStore((state) => state.setIsEditing);
 
   const {
     attributes,
@@ -55,6 +57,12 @@ export function DraggableSection({
     }
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveSection(sectionId);
+    setIsEditing(true);
+  };
+
   if (!isEditMode) {
     return (
       <div style={style} className={className}>
@@ -76,11 +84,11 @@ export function DraggableSection({
         ...style,
         ...dragStyle,
         position: 'relative',
-        border: isHovered ? '2px dashed #9333ea' : '2px dashed transparent',
+        border: isEditMode ? (isHovered ? '2px dashed #9333ea' : '2px dashed #e0d4f7') : 'none',
         borderRadius: '8px',
         transition: isDragging ? transition : 'all 0.2s ease',
-        backgroundColor: isDragging ? '#faf5ff' : 'transparent',
-        boxShadow: isDragging ? '0 10px 40px rgba(147, 51, 234, 0.3)' : 'none',
+        backgroundColor: isDragging ? '#faf5ff' : (isEditMode && isHovered ? '#faf5ff50' : 'transparent'),
+        boxShadow: isDragging ? '0 10px 40px rgba(147, 51, 234, 0.3)' : (isEditMode && isHovered ? '0 2px 8px rgba(147, 51, 234, 0.15)' : 'none'),
       }}
       className={className}
       onMouseEnter={() => setIsHovered(true)}
@@ -105,6 +113,13 @@ export function DraggableSection({
           </div>
           
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleEdit}
+              className="hover:bg-white/20 p-1.5 rounded transition-colors"
+              title="Edit section content"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
             <button
               onClick={handleToggleVisibility}
               className="hover:bg-white/20 p-1.5 rounded transition-colors"

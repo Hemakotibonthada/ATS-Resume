@@ -3,7 +3,7 @@
  * Different visual styles and layouts for the resume
  */
 
-export type TemplateId = 'modern' | 'classic' | 'minimal' | 'creative' | 'executive' | 'technical' | 'devops' | 'single-page';
+export type TemplateId = 'modern' | 'classic' | 'minimal' | 'creative' | 'executive' | 'technical' | 'devops' | 'single-page' | 'compact-two-column' | 'timeline-style' | 'elegant-modern' | 'bold-professional' | 'minimalist-pro';
 
 export interface Template {
   id: TemplateId;
@@ -133,6 +133,76 @@ export const templates: Template[] = [
       accentPosition: 'top',
       spacing: 'compact',
       bulletStyle: 'disc',
+    },
+  },
+  {
+    id: 'compact-two-column',
+    name: 'Compact Professional',
+    description: 'Space-efficient two-column design with sidebar emphasis',
+    preview: '📑',
+    style: {
+      layout: 'two-column',
+      headerAlignment: 'left',
+      sectionStyle: 'card',
+      accentPosition: 'left',
+      spacing: 'compact',
+      bulletStyle: 'arrow',
+    },
+  },
+  {
+    id: 'timeline-style',
+    name: 'Timeline Career',
+    description: 'Visual timeline showcasing career progression',
+    preview: '⏱️',
+    style: {
+      layout: 'single-column',
+      headerAlignment: 'left',
+      sectionStyle: 'timeline',
+      accentPosition: 'left',
+      spacing: 'normal',
+      bulletStyle: 'disc',
+    },
+  },
+  {
+    id: 'elegant-modern',
+    name: 'Elegant Modern',
+    description: 'Refined design with elegant typography and spacing',
+    preview: '✨',
+    style: {
+      layout: 'single-column',
+      headerAlignment: 'center',
+      sectionStyle: 'minimal',
+      accentPosition: 'top',
+      spacing: 'relaxed',
+      bulletStyle: 'checkmark',
+    },
+  },
+  {
+    id: 'bold-professional',
+    name: 'Bold Professional',
+    description: 'Strong visual hierarchy with bold section headers',
+    preview: '💪',
+    style: {
+      layout: 'two-column',
+      headerAlignment: 'left',
+      sectionStyle: 'bordered',
+      accentPosition: 'left',
+      spacing: 'normal',
+      bulletStyle: 'square',
+    },
+  },
+  {
+    id: 'minimalist-pro',
+    name: 'Minimalist Pro',
+    description: 'Ultra-minimal design with perfect balance',
+    preview: '◻️',
+    style: {
+      layout: 'single-column',
+      headerAlignment: 'left',
+      sectionStyle: 'minimal',
+      accentPosition: 'none',
+      spacing: 'relaxed',
+      bulletStyle: 'arrow',
     },
   },
 ];

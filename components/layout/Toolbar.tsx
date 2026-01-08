@@ -4,6 +4,7 @@ import { useResumeStore } from '@/stores';
 import { exportToPDF } from '@/lib/pdfExport';
 import { exportResumeAsJSON, importResumeFromJSON } from '@/lib/storage';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { VersionHistoryModal } from '@/components/features/VersionHistoryModal';
 import { SettingsModal } from '@/components/features/SettingsModal';
 import { ATSCheckerModal } from '@/components/features/ATSCheckerModal';
@@ -12,24 +13,29 @@ import { TemplatePickerModal } from '@/components/features/TemplatePickerModal';
 import SemanticAnalyzerModal from '@/components/features/SemanticAnalyzerModal';
 import FluffDetectorModal from '@/components/features/FluffDetectorModal';
 import { LayoutEditorModal } from '@/components/features/LayoutEditorModal';
+import { AIImpactEnhancer } from '@/components/features/AIImpactEnhancer';
+import { SkillsGapAnalysis } from '@/components/features/SkillsGapAnalysis';
+import { ResumeHeatmap } from '@/components/features/ResumeHeatmap';
+import { OneClickTailoring } from '@/components/features/OneClickTailoring';
+import { VersionDiffViewer } from '@/components/features/VersionDiffViewer';
+import { HamburgerMenu } from '@/components/layout/HamburgerMenu';
+import { TemplateGallery } from '@/components/features/TemplateGallery';
 import { motion } from 'framer-motion';
 import { 
   Save, 
   Download, 
-  Upload, 
   Settings, 
-  History, 
   FileText,
   CheckCircle,
   TrendingUp,
   Layout,
-  Lightbulb,
-  AlertCircle,
   Sparkles,
-  Edit3
+  Edit3,
+  Zap
 } from 'lucide-react';
 
 export function Toolbar() {
+  const router = useRouter();
   const currentResume = useResumeStore((state) => state.currentResume);
   const saveVersion = useResumeStore((state) => state.saveVersion);
   const loadResume = useResumeStore((state) => state.loadResume);
@@ -44,6 +50,12 @@ export function Toolbar() {
   const [showSemanticAnalyzer, setShowSemanticAnalyzer] = useState(false);
   const [showFluffDetector, setShowFluffDetector] = useState(false);
   const [showLayoutEditor, setShowLayoutEditor] = useState(false);
+  const [showImpactEnhancer, setShowImpactEnhancer] = useState(false);
+  const [showSkillsGap, setShowSkillsGap] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showTailoring, setShowTailoring] = useState(false);
+  const [showDiffViewer, setShowDiffViewer] = useState(false);
+  const [showTemplateGallery, setShowTemplateGallery] = useState(false);
 
   const handleSaveVersion = () => {
     const message = prompt('Enter version message:');
@@ -54,14 +66,19 @@ export function Toolbar() {
   };
 
   const handleExportPDF = async () => {
-    if (!currentResume) return;
+    if (!currentResume) {
+      alert('No resume to export. Please create or load a resume first.');
+      return;
+    }
     
     setIsExporting(true);
     try {
       await exportToPDF(currentResume);
-    } catch (error) {
+      // Success - the print dialog will open
+    } catch (error: any) {
       console.error('PDF export failed:', error);
-      alert('PDF export failed. Please try again.');
+      const errorMessage = error?.message || 'Unknown error occurred';
+      alert(`PDF export failed: ${errorMessage}\n\nTips:\n- Allow popups in your browser\n- Try using Chrome or Edge browser\n- Check if the resume preview is visible`);
     } finally {
       setIsExporting(false);
     }
@@ -98,7 +115,9 @@ export function Toolbar() {
     <>
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}        transition={{ duration: 0.3 }}        className="h-16 border-b border-white/20 backdrop-blur-xl bg-gradient-to-r from-purple-600/90 to-pink-600/90 px-6 flex items-center justify-between shadow-lg\"
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="h-16 border-b border-white/20 backdrop-blur-xl bg-gradient-to-r from-purple-600/90 to-pink-600/90 px-6 flex items-center justify-between shadow-lg relative z-[102]"
       >
       <div className="flex items-center gap-4">
         <motion.div 
@@ -138,31 +157,7 @@ export function Toolbar() {
           title="Save Version"
         >
           <Save className="w-4 h-4" />
-          Save Version
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowVersionHistory(true)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white backdrop-blur-md bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20 shadow-lg"
-          title="Version History"
-        >
-          <History className="w-4 h-4" />
-          History
-        </motion.button>
-
-        <div className="w-px h-6 bg-white/20" />
-
-        <motion.button
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleImport}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white backdrop-blur-md bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20 shadow-lg"
-          title="Import Resume"
-        >
-          <Upload className="w-4 h-4" />
-          Import
+          Save
         </motion.button>
 
         <div className="relative group">
@@ -200,23 +195,12 @@ export function Toolbar() {
         <motion.button
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setShowTemplatePicker(true)}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white backdrop-blur-md bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20 shadow-lg"
-          title="Change Template"
+          onClick={() => router.push('/templates')}
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white backdrop-blur-md bg-white/10 hover:bg-white/20 rounded-lg transition-all border border-white/20 shadow-lg"
+          title="Browse Template Gallery"
         >
           <Layout className="w-4 h-4" />
-          Template
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowLayoutEditor(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-700 bg-purple-100/80 hover:bg-purple-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
-          title="Customize Layout"
-        >
-          <Layout className="w-4 h-4" />
-          Customize
+          Templates
         </motion.button>
 
         <motion.button
@@ -227,7 +211,7 @@ export function Toolbar() {
           title="ATS Checker"
         >
           <CheckCircle className="w-4 h-4" />
-          ATS Score
+          ATS
         </motion.button>
 
         <motion.button
@@ -235,10 +219,10 @@ export function Toolbar() {
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowJobMatcher(true)}
           className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100/80 hover:bg-blue-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
-          title="Job Description Matcher"
+          title="Job Matcher"
         >
           <TrendingUp className="w-4 h-4" />
-          Job Match
+          Match
         </motion.button>
 
         <div className="w-px h-6 bg-white/20" />
@@ -246,23 +230,12 @@ export function Toolbar() {
         <motion.button
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setShowSemanticAnalyzer(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-700 bg-purple-100/80 hover:bg-purple-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
-          title="Semantic Job Mapper"
+          onClick={() => setShowTailoring(true)}
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-indigo-700 bg-gradient-to-r from-indigo-100/80 to-purple-100/80 hover:from-indigo-200/80 hover:to-purple-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
+          title="AI Tailor Resume"
         >
-          <Lightbulb className="w-4 h-4" />
-          Semantic
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowFluffDetector(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-700 bg-red-100/80 hover:bg-red-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
-          title="Fluff Detector"
-        >
-          <AlertCircle className="w-4 h-4" />
-          Fluff
+          <Zap className="w-4 h-4" />
+          Tailor
         </motion.button>
 
         <div className="w-px h-6 bg-white/20" />
@@ -276,11 +249,24 @@ export function Toolbar() {
               ? 'text-white bg-gradient-to-r from-purple-600 to-pink-600'
               : 'text-purple-700 bg-purple-100/80 hover:bg-purple-200/80'
           }`}
-          title="Toggle Preview Edit Mode - Drag & drop sections, inline edit text"
+          title="Toggle Edit Mode"
         >
           <Edit3 className="w-4 h-4" />
-          {previewEditMode ? 'Edit Mode ON' : 'Edit Mode'}
+          {previewEditMode ? 'Edit ON' : 'Edit'}
         </motion.button>
+
+        <div className="w-px h-6 bg-white/20" />
+
+        <HamburgerMenu
+          onOpenVersionHistory={() => setShowVersionHistory(true)}
+          onOpenImport={handleImport}
+          onOpenImpactEnhancer={() => setShowImpactEnhancer(true)}
+          onOpenSkillsGap={() => setShowSkillsGap(true)}
+          onOpenHeatmap={() => setShowHeatmap(true)}
+          onOpenDiffViewer={() => setShowDiffViewer(true)}
+          onOpenSemanticAnalyzer={() => setShowSemanticAnalyzer(true)}
+          onOpenFluffDetector={() => setShowFluffDetector(true)}
+        />
 
         <div className="w-px h-6 bg-white/20" />
 
@@ -321,6 +307,11 @@ export function Toolbar() {
         onClose={() => setShowTemplatePicker(false)} 
       />
 
+      <TemplateGallery
+        isOpen={showTemplateGallery}
+        onClose={() => setShowTemplateGallery(false)}
+      />
+
       <LayoutEditorModal
         isOpen={showLayoutEditor}
         onClose={() => setShowLayoutEditor(false)}
@@ -341,6 +332,31 @@ export function Toolbar() {
           />
         </>
       )}
+
+      <AIImpactEnhancer 
+        isOpen={showImpactEnhancer} 
+        onClose={() => setShowImpactEnhancer(false)} 
+      />
+
+      <SkillsGapAnalysis 
+        isOpen={showSkillsGap} 
+        onClose={() => setShowSkillsGap(false)} 
+      />
+
+      <ResumeHeatmap 
+        isOpen={showHeatmap} 
+        onClose={() => setShowHeatmap(false)} 
+      />
+
+      <OneClickTailoring 
+        isOpen={showTailoring} 
+        onClose={() => setShowTailoring(false)} 
+      />
+
+      <VersionDiffViewer 
+        isOpen={showDiffViewer} 
+        onClose={() => setShowDiffViewer(false)} 
+      />
     </>
   );
 }

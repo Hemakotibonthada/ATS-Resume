@@ -14,6 +14,7 @@ interface ResumeStore {
   activeSection: string | null;
   isEditing: boolean;
   previewEditMode: boolean;
+  isInteractiveMode: boolean; // Phase 3: WYSIWYG mode
   
   // Actions
   createResume: (title: string) => void;
@@ -23,13 +24,16 @@ interface ResumeStore {
   // Section actions
   addSection: (section: Omit<ResumeSection, 'id' | 'order'>) => void;
   updateSection: (sectionId: string, updates: Partial<ResumeSection>) => void;
+  updateSectionData: (sectionId: string, dataUpdates: any) => void; // Phase 3: Update section data
   deleteSection: (sectionId: string) => void;
   reorderSections: (sections: ResumeSection[]) => void;
+  getSectionOrder: () => string[]; // Phase 3: Get ordered section IDs
   
   // Editor actions
   setActiveSection: (sectionId: string | null) => void;
   setIsEditing: (isEditing: boolean) => void;
   setPreviewEditMode: (enabled: boolean) => void;
+  setInteractiveMode: (enabled: boolean) => void; // Phase 3: Toggle WYSIWYG
   
   // Version control
   saveVersion: (message: string) => void;
@@ -144,6 +148,7 @@ export const useResumeStore = create<ResumeStore>()(
         activeSection: null,
         isEditing: false,
         previewEditMode: false,
+        isInteractiveMode: false,
 
         createResume: (title: string) => {
           const newResume = createDefaultResume(title);
@@ -242,6 +247,37 @@ export const useResumeStore = create<ResumeStore>()(
           });
         },
 
+        updateSectionData: (sectionId: string, dataUpdates: any) => {
+          set((state) => {
+            if (!state.currentResume) return state;
+
+            const updatedSections = state.currentResume.sections.map((section) =>
+              section.id === sectionId
+                ? {
+                    ...section,
+                    data: { ...section.data, ...dataUpdates },
+                  }
+                : section
+            );
+
+            return {
+              currentResume: {
+                ...state.currentResume,
+                sections: updatedSections,
+                updatedAt: new Date().toISOString(),
+              },
+            };
+          });
+        },
+
+        getSectionOrder: () => {
+          const state = get();
+          if (!state.currentResume) return [];
+          return state.currentResume.sections
+            .sort((a, b) => a.order - b.order)
+            .map((s) => s.id);
+        },
+
         setActiveSection: (sectionId: string | null) => {
           set({ activeSection: sectionId });
         },
@@ -252,6 +288,10 @@ export const useResumeStore = create<ResumeStore>()(
 
         setPreviewEditMode: (enabled: boolean) => {
           set({ previewEditMode: enabled });
+        },
+
+        setInteractiveMode: (enabled: boolean) => {
+          set({ isInteractiveMode: enabled });
         },
 
         saveVersion: (message: string) => {
