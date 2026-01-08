@@ -5,6 +5,7 @@ import { X, Check, Download, Eye, ChevronLeft, ChevronRight } from 'lucide-react
 import { templates, Template } from '@/lib/templates';
 import { useResumeStore } from '@/stores';
 import { exportToPDF } from '@/lib/pdfExport';
+import { ResumePreview } from '@/components/preview/ResumePreview';
 
 interface TemplateGalleryProps {
   isOpen: boolean;
@@ -92,9 +93,27 @@ export function TemplateGallery({ isOpen, onClose }: TemplateGalleryProps) {
                     }`}
                   >
                     {/* Template Preview Card */}
-                    <div className="aspect-[3/4] bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-xl flex items-center justify-center text-8xl relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-pink-50/50" />
-                      <span className="relative z-10 drop-shadow-lg">{template.preview}</span>
+                    <div className="aspect-[3/4] bg-white rounded-t-xl relative overflow-hidden">
+                      <div className="absolute inset-0 flex items-center justify-center p-2">
+                        <div className="w-full h-full overflow-hidden rounded shadow-sm" style={{ transform: 'scale(0.95)' }}>
+                          <div style={{ 
+                            transform: 'scale(0.18)', 
+                            transformOrigin: 'top left',
+                            width: '555%',
+                            height: '555%'
+                          }}>
+                            <ResumePreview 
+                              key={`gallery-thumb-${template.id}`}
+                              resume={{ ...currentResume, templateId: template.id }}
+                              isEditMode={false}
+                              zoom={0.8}
+                              onZoomIn={() => {}}
+                              onZoomOut={() => {}}
+                              onResetZoom={() => {}}
+                            />
+                          </div>
+                        </div>
+                      </div>
                       
                       {/* Hover Actions */}
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -247,30 +266,36 @@ export function TemplateGallery({ isOpen, onClose }: TemplateGalleryProps) {
             </div>
 
             {/* Preview Content */}
-            <div className="flex-1 overflow-y-auto bg-gray-100 p-8 flex items-start justify-center">
-              <div className="bg-white rounded-lg shadow-xl p-8 max-w-4xl">
-                <div className="aspect-[8.5/11] bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg flex items-center justify-center relative overflow-hidden border-2 border-gray-200">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50/30 to-pink-50/30" />
-                  <div className="text-center z-10">
-                    <div className="text-9xl mb-4">{selectedTemplate.preview}</div>
-                    <h3 className="text-3xl font-bold text-gray-800 mb-2">
-                      {selectedTemplate.name}
-                    </h3>
-                    <p className="text-gray-600 mb-6">{selectedTemplate.description}</p>
-                    <div className="flex gap-3 justify-center flex-wrap">
-                      <span className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                        {template.style.layout} Layout
-                      </span>
-                      <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                        {template.style.spacing} Spacing
-                      </span>
-                      <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                        {template.style.sectionStyle} Sections
-                      </span>
-                      <span className="px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
-                        {template.style.bulletStyle} Bullets
-                      </span>
-                    </div>
+            <div className="flex-1 overflow-y-auto bg-gray-100 p-8">
+              <div className="max-w-4xl mx-auto">
+                <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+                  <ResumePreview 
+                    key={`gallery-preview-${selectedTemplate.id}`}
+                    resume={{ ...currentResume, templateId: selectedTemplate.id }}
+                    isEditMode={false}
+                    zoom={1}
+                    onZoomIn={() => {}}
+                    onZoomOut={() => {}}
+                    onResetZoom={() => {}}
+                  />
+                </div>
+                
+                {/* Template Features */}
+                <div className="mt-6 bg-white rounded-lg shadow-lg p-6">
+                  <h4 className="font-bold text-lg mb-3 text-gray-800">Template Features</h4>
+                  <div className="flex gap-3 flex-wrap">
+                    <span className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                      {selectedTemplate.style.layout} Layout
+                    </span>
+                    <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                      {selectedTemplate.style.spacing} Spacing
+                    </span>
+                    <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                      {selectedTemplate.style.sectionStyle} Sections
+                    </span>
+                    <span className="px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
+                      {selectedTemplate.style.bulletStyle} Bullets
+                    </span>
                   </div>
                 </div>
               </div>

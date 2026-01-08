@@ -26,7 +26,23 @@ import {
 } from '@dnd-kit/sortable';
 import { useState } from 'react';
 
-export function ResumePreview() {
+interface ResumePreviewProps {
+  resume?: any;
+  isEditMode?: boolean;
+  zoom?: number;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onResetZoom?: () => void;
+}
+
+export function ResumePreview({ 
+  resume: passedResume,
+  isEditMode: passedEditMode,
+  zoom: passedZoom,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom
+}: ResumePreviewProps = {}) {
   const currentResume = useResumeStore((state) => state.currentResume);
   const previewEditMode = useResumeStore((state) => state.previewEditMode);
   const reorderSections = useResumeStore((state) => state.reorderSections);
@@ -34,22 +50,27 @@ export function ResumePreview() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
 
-  const handleZoomIn = () => setZoom((prev) => Math.min(prev + 0.1, 2));
-  const handleZoomOut = () => setZoom((prev) => Math.max(prev - 0.1, 0.5));
-  const handleResetZoom = () => setZoom(1);
+  // Use passed props if available, otherwise use store
+  const finalResume = passedResume || currentResume;
+  const isEditMode = passedEditMode !== undefined ? passedEditMode : previewEditMode;
+  const finalZoom = passedZoom !== undefined ? passedZoom : zoom;
+
+  const handleZoomIn = onZoomIn || (() => setZoom((prev) => Math.min(prev + 0.1, 2)));
+  const handleZoomOut = onZoomOut || (() => setZoom((prev) => Math.max(prev - 0.1, 0.5)));
+  const handleResetZoom = onResetZoom || (() => setZoom(1));
 
   const handlePreviousTemplate = () => {
-    if (!currentResume) return;
-    const currentIndex = templates.findIndex(t => t.id === (currentResume.templateId || 'modern'));
+    if (!finalResume) return;
+    const currentIndex = templates.findIndex(t => t.id === (finalResume.templateId || 'modern'));
     const previousIndex = currentIndex > 0 ? currentIndex - 1 : templates.length - 1;
-    updateResume({ ...currentResume, templateId: templates[previousIndex].id });
+    updateResume({ ...finalResume, templateId: templates[previousIndex].id });
   };
 
   const handleNextTemplate = () => {
-    if (!currentResume) return;
-    const currentIndex = templates.findIndex(t => t.id === (currentResume.templateId || 'modern'));
+    if (!finalResume) return;
+    const currentIndex = templates.findIndex(t => t.id === (finalResume.templateId || 'modern'));
     const nextIndex = currentIndex < templates.length - 1 ? currentIndex + 1 : 0;
-    updateResume({ ...currentResume, templateId: templates[nextIndex].id });
+    updateResume({ ...finalResume, templateId: templates[nextIndex].id });
   };
 
   const sensors = useSensors(
@@ -63,15 +84,15 @@ export function ResumePreview() {
     })
   );
 
-  if (!currentResume) {
+  if (!finalResume) {
     return <div>No resume to preview</div>;
   }
 
-  const { sections, settings, templateId } = currentResume;
+  const { sections, settings, templateId } = finalResume;
   const template = getTemplate(templateId || 'modern');
   const visibleSections = sections
-    .filter((s) => s.visible)
-    .sort((a, b) => a.order - b.order);
+    .filter((s: any) => s.visible)
+    .sort((a: any, b: any) => a.order - b.order);
 
   const handleDragStart = (event: DragEndEvent) => {
     setActiveId(event.active.id as string);
@@ -82,11 +103,11 @@ export function ResumePreview() {
     setActiveId(null);
 
     if (over && active.id !== over.id) {
-      const oldIndex = visibleSections.findIndex((s) => s.id === active.id);
-      const newIndex = visibleSections.findIndex((s) => s.id === over.id);
+      const oldIndex = visibleSections.findIndex((s: any) => s.id === active.id);
+      const newIndex = visibleSections.findIndex((s: any) => s.id === over.id);
 
       if (oldIndex !== -1 && newIndex !== -1) {
-        const reordered = arrayMove(visibleSections, oldIndex, newIndex);
+        const reordered = arrayMove(visibleSections, oldIndex, newIndex) as any;
         reorderSections(reordered);
       }
     }
@@ -136,7 +157,7 @@ export function ResumePreview() {
   if (template.id === 'devops') {
     return (
       <>
-        <DevOpsTemplatePreview resume={currentResume} isEditMode={previewEditMode} zoom={zoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
+        <DevOpsTemplatePreview resume={finalResume} isEditMode={isEditMode} zoom={finalZoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
       </>
     );
   }
@@ -145,7 +166,7 @@ export function ResumePreview() {
   if (template.id === 'single-page') {
     return (
       <>
-        <SinglePageTemplatePreview resume={currentResume} isEditMode={previewEditMode} zoom={zoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
+        <SinglePageTemplatePreview resume={finalResume} isEditMode={isEditMode} zoom={finalZoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
       </>
     );
   }
@@ -154,7 +175,7 @@ export function ResumePreview() {
   if (template.id === 'timeline-style') {
     return (
       <>
-        <TimelineTemplatePreview resume={currentResume} isEditMode={previewEditMode} zoom={zoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
+        <TimelineTemplatePreview resume={finalResume} isEditMode={isEditMode} zoom={finalZoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
       </>
     );
   }
@@ -163,7 +184,7 @@ export function ResumePreview() {
   if (template.id === 'bold-professional') {
     return (
       <>
-        <BoldProfessionalPreview resume={currentResume} isEditMode={previewEditMode} zoom={zoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
+        <BoldProfessionalPreview resume={finalResume} isEditMode={isEditMode} zoom={finalZoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
       </>
     );
   }
@@ -172,7 +193,7 @@ export function ResumePreview() {
   if (template.id === 'elegant-modern') {
     return (
       <>
-        <ElegantModernPreview resume={currentResume} isEditMode={previewEditMode} zoom={zoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
+        <ElegantModernPreview resume={finalResume} isEditMode={isEditMode} zoom={finalZoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
       </>
     );
   }
@@ -185,7 +206,7 @@ export function ResumePreview() {
   };
   const sectionSpacing = spacingMap[template.style.spacing];
 
-  const sectionIds = visibleSections.map((s) => s.id);
+  const sectionIds = visibleSections.map((s: any) => s.id);
 
   return (
     <>
@@ -255,7 +276,7 @@ export function ResumePreview() {
           onDragCancel={handleDragCancel}
         >
           <SortableContext items={sectionIds} strategy={verticalListSortingStrategy}>
-            {visibleSections.map((section) => (
+            {visibleSections.map((section: any) => (
               <DraggableSection
                 key={section.id}
                 sectionId={section.id}

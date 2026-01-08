@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Download, Check } from 'lucide-react';
-import { templates } from '@/lib/templates';
+import { templates, type TemplateId } from '@/lib/templates';
 import { useResumeStore } from '@/stores';
 import { ResumePreview } from '@/components/preview/ResumePreview';
 import { exportToPDF } from '@/lib/pdfExport';
@@ -16,7 +16,7 @@ export default function TemplatesPage() {
 
   useEffect(() => {
     if (currentResume) {
-      setSelectedTemplateId(currentResume.templateId);
+      setSelectedTemplateId(currentResume.templateId || 'modern');
     }
   }, [currentResume]);
 
@@ -32,12 +32,12 @@ export default function TemplatesPage() {
   }
 
   const handleSelectTemplate = (templateId: string) => {
-    updateResume({ ...currentResume, templateId });
+    updateResume({ ...currentResume, templateId: templateId as TemplateId });
     router.push('/builder');
   };
 
   const handleExportTemplate = async (templateId: string) => {
-    const tempResume = { ...currentResume, templateId };
+    const tempResume = { ...currentResume, templateId: templateId as TemplateId };
     try {
       await exportToPDF(tempResume);
     } catch (error) {
@@ -74,8 +74,8 @@ export default function TemplatesPage() {
       {/* Main Content */}
       <div className="flex h-[calc(100vh-80px)]">
         {/* Templates Sidebar */}
-        <div className="w-80 bg-slate-800/30 backdrop-blur-xl border-r border-slate-700/50 overflow-y-auto">
-          <div className="p-4 space-y-3">
+        <div className="w-64 bg-slate-800/30 backdrop-blur-xl border-r border-slate-700/50 overflow-y-auto">
+          <div className="p-3 space-y-2">
             {templates.map((template) => {
               const isActive = currentResume.templateId === template.id;
               const isSelected = selectedTemplateId === template.id;
@@ -92,22 +92,30 @@ export default function TemplatesPage() {
                 >
                   {/* Template Preview Thumbnail */}
                   <div className="relative aspect-[3/4] bg-white rounded-t-xl overflow-hidden">
-                    <div className="absolute inset-0 transform scale-[0.25] origin-top-left">
-                      <div className="w-[800px] h-[1132px]">
-                        <ResumePreview 
-                          resume={{ ...currentResume, templateId: template.id }}
-                          isEditMode={false}
-                          zoom={1}
-                          onZoomIn={() => {}}
-                          onZoomOut={() => {}}
-                          onResetZoom={() => {}}
-                        />
+                    <div className="absolute inset-0 flex items-center justify-center p-2">
+                      <div className="w-full h-full overflow-hidden rounded shadow-sm" style={{ transform: 'scale(0.95)' }}>
+                        <div style={{ 
+                          transform: 'scale(0.18)', 
+                          transformOrigin: 'top left',
+                          width: '555%',
+                          height: '555%'
+                        }}>
+                          <ResumePreview 
+                            key={`thumbnail-${template.id}`}
+                            resume={{ ...currentResume, templateId: template.id }}
+                            isEditMode={false}
+                            zoom={0.8}
+                            onZoomIn={() => {}}
+                            onZoomOut={() => {}}
+                            onResetZoom={() => {}}
+                          />
+                        </div>
                       </div>
                     </div>
                     
                     {/* Active Badge */}
                     {isActive && (
-                      <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                      <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 z-10">
                         <Check size={12} />
                         Active
                       </div>
@@ -181,6 +189,7 @@ export default function TemplatesPage() {
               <div className="p-8 bg-gray-50">
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                   <ResumePreview 
+                    key={`preview-${selectedTemplateId}`}
                     resume={{ ...currentResume, templateId: selectedTemplateId }}
                     isEditMode={false}
                     zoom={1}
