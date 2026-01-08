@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { GripVertical, Trash2, Eye, EyeOff, Edit2 } from 'lucide-react';
+import { GripVertical, Trash2, Eye, EyeOff, Edit2, LayoutGrid } from 'lucide-react';
 import { useResumeStore } from '@/stores';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+export type SectionVariant = 'default' | 'two-column' | 'pills' | 'compact';
 
 interface DraggableSectionProps {
   sectionId: string;
@@ -12,6 +14,8 @@ interface DraggableSectionProps {
   style?: React.CSSProperties;
   className?: string;
   isEditMode: boolean;
+  variant?: SectionVariant;
+  onVariantChange?: (variant: SectionVariant) => void;
 }
 
 export function DraggableSection({ 
@@ -19,9 +23,12 @@ export function DraggableSection({
   children, 
   style, 
   className,
-  isEditMode 
+  isEditMode,
+  variant = 'default',
+  onVariantChange,
 }: DraggableSectionProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [showVariantMenu, setShowVariantMenu] = useState(false);
   const currentResume = useResumeStore((state) => state.currentResume);
   const updateSection = useResumeStore((state) => state.updateSection);
   const deleteSection = useResumeStore((state) => state.deleteSection);
@@ -62,6 +69,20 @@ export function DraggableSection({
     setActiveSection(sectionId);
     setIsEditing(true);
   };
+
+  const handleVariantChange = (newVariant: SectionVariant) => {
+    if (onVariantChange) {
+      onVariantChange(newVariant);
+    }
+    setShowVariantMenu(false);
+  };
+
+  const variantOptions = [
+    { value: 'default', label: 'Default', description: 'Standard vertical layout' },
+    { value: 'two-column', label: 'Two Column', description: 'Grid layout with 2 columns' },
+    { value: 'pills', label: 'Pills', description: 'Compact pill/badge style' },
+    { value: 'compact', label: 'Compact', description: 'Condensed spacing' },
+  ] as const;
 
   if (!isEditMode) {
     return (
@@ -113,6 +134,39 @@ export function DraggableSection({
           </div>
           
           <div className="flex items-center gap-2">
+            {onVariantChange && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowVariantMenu(!showVariantMenu)}
+                  className="hover:bg-white/20 p-1.5 rounded transition-colors"
+                  title="Change layout"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+                
+                {showVariantMenu && (
+                  <div className="absolute top-full right-0 mt-2 w-56 bg-white text-gray-800 rounded-lg shadow-2xl border border-gray-200 p-2 z-[100]">
+                    <div className="text-xs font-semibold text-gray-500 px-2 py-1 mb-1">
+                      Layout Options
+                    </div>
+                    {variantOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => handleVariantChange(option.value)}
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                          variant === option.value
+                            ? 'bg-purple-100 text-purple-900'
+                            : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className="font-medium">{option.label}</div>
+                        <div className="text-xs text-gray-500">{option.description}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             <button
               onClick={handleEdit}
               className="hover:bg-white/20 p-1.5 rounded transition-colors"

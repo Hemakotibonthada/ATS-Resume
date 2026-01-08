@@ -8,6 +8,7 @@ import { ContactQRCode } from '@/components/features/QRCodeGenerator';
 import { getTemplate, templates } from '@/lib/templates';
 import ReactMarkdown from 'react-markdown';
 import { DraggableSection } from './DraggableSection';
+import { SpaceOptimizedPreview } from './SpaceOptimizedPreview';
 import {
   DndContext,
   closestCenter,
@@ -194,6 +195,15 @@ export function ResumePreview({
     return (
       <>
         <ElegantModernPreview resume={finalResume} isEditMode={isEditMode} zoom={finalZoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
+      </>
+    );
+  }
+
+  // Space Optimized template
+  if (template.id === 'space-optimized') {
+    return (
+      <>
+        <SpaceOptimizedPreview resume={finalResume} isEditMode={isEditMode} zoom={finalZoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
       </>
     );
   }
@@ -1052,10 +1062,10 @@ function SinglePageTemplatePreview({
               style={{
                 width: `${settings.layout.pageSize.width}mm`,
                 minHeight: `${settings.layout.pageSize.height}mm`,
-                padding: `${margins.top}mm ${margins.right}mm ${margins.bottom + 5}mm ${margins.left}mm`,
+                padding: `10mm 12mm 10mm 12mm`,
                 fontFamily: theme.fontPair.body,
-                fontSize: '10.5px',
-                lineHeight: '1.4',
+                fontSize: '9.5px',
+                lineHeight: '1.3',
               }}
             >
       {/* Compact Header */}
@@ -1153,10 +1163,10 @@ function SinglePageTemplatePreview({
 // Single Page Contact Section
 function SinglePageContactPreview({ data, theme }: { data: ContactData; theme: any }) {
   return (
-    <div className="text-center mb-4 pb-3" style={{ borderBottom: `2px solid ${theme.primaryColor}` }}>
+    <div className="text-center mb-0 pb-0.5" style={{ borderBottom: `2px solid ${theme.primaryColor}` }}>
       {/* Name */}
       <h1 
-        className="text-3xl font-bold mb-1" 
+        className="text-3xl font-bold mb-0" 
         style={{ 
           color: theme.primaryColor,
           fontFamily: theme.fontPair.heading,
@@ -1168,7 +1178,7 @@ function SinglePageContactPreview({ data, theme }: { data: ContactData; theme: a
 
       {/* Title */}
       {data.title && (
-        <p className="text-sm font-medium mb-2" style={{ color: theme.secondaryColor }}>
+        <p className="text-sm font-medium mb-0.5" style={{ color: theme.secondaryColor }}>
           {data.title}
         </p>
       )}
@@ -1213,19 +1223,19 @@ function SinglePageContactPreview({ data, theme }: { data: ContactData; theme: a
 // Single Page Summary Section
 function SinglePageSummaryPreview({ data, title, theme }: { data: SummaryData; title: string; theme: any }) {
   return (
-    <div className="mb-4">
+    <div className="mb-2.5">
       <h2 
-        className="text-sm font-bold mb-1.5 uppercase tracking-wide" 
+        className="text-xs font-bold mb-1 uppercase tracking-wide" 
         style={{ 
           color: theme.primaryColor,
           fontFamily: theme.fontPair.heading,
           borderBottom: `1px solid ${theme.primaryColor}`,
-          paddingBottom: '2px'
+          paddingBottom: '1px'
         }}
       >
         {title}
       </h2>
-      <p className="text-xs leading-relaxed" style={{ color: '#333', textAlign: 'justify' }}>
+      <p className="text-xs" style={{ color: '#333', textAlign: 'justify', lineHeight: '1.25' }}>
         {data.content}
       </p>
     </div>
@@ -1235,19 +1245,19 @@ function SinglePageSummaryPreview({ data, title, theme }: { data: SummaryData; t
 // Single Page Experience Section
 function SinglePageExperiencePreview({ data, title, theme }: { data: ExperienceData; title: string; theme: any }) {
   return (
-    <div className="mb-4">
+    <div className="mb-2.5">
       <h2 
-        className="text-sm font-bold mb-2 uppercase tracking-wide" 
+        className="text-xs font-bold mb-1.5 uppercase tracking-wide" 
         style={{ 
           color: theme.primaryColor,
           fontFamily: theme.fontPair.heading,
           borderBottom: `1px solid ${theme.primaryColor}`,
-          paddingBottom: '2px'
+          paddingBottom: '1px'
         }}
       >
         {title}
       </h2>
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         {data.items.map((item: ExperienceItem, idx: number) => (
           <div key={idx}>
             <div className="flex justify-between items-baseline mb-0.5">
@@ -1277,6 +1287,15 @@ function SinglePageExperiencePreview({ data, title, theme }: { data: ExperienceD
                 {item.description.split('\n').filter(line => line.trim()).map((line, i) => (
                   <li key={i} className="text-xs" style={{ color: '#333', lineHeight: '1.3' }}>
                     {line.trim().replace(/^[-•]\s*/, '')}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {item.highlights && item.highlights.length > 0 && (
+              <ul className="list-disc list-inside space-y-0.5 ml-1">
+                {item.highlights.map((highlight, hidx) => (
+                  <li key={hidx} className="text-xs" style={{ color: '#333', lineHeight: '1.3' }}>
+                    {highlight}
                   </li>
                 ))}
               </ul>
