@@ -7,9 +7,11 @@ import { Mail, Phone, MapPin, Linkedin, Github, Globe, Calendar, Award, Code2 } 
 import { ContactQRCode } from '@/components/features/QRCodeGenerator';
 import { getTemplate } from '@/lib/templates';
 import ReactMarkdown from 'react-markdown';
+import { DraggableSection } from './DraggableSection';
 
 export function ResumePreview() {
   const currentResume = useResumeStore((state) => state.currentResume);
+  const previewEditMode = useResumeStore((state) => state.previewEditMode);
 
   if (!currentResume) {
     return <div>No resume to preview</div>;
@@ -51,16 +53,26 @@ export function ResumePreview() {
         fontFamily: settings.theme.fontPair.body,
       }}
     >
+      {/* Edit Mode Indicator */}
+      {previewEditMode && (
+        <div className="fixed top-20 right-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center gap-2 animate-pulse">
+          <span className="font-semibold">✨ Edit Mode Active</span>
+          <span className="text-xs opacity-90">Hover sections to edit • Drag to reorder</span>
+        </div>
+      )}
+      
       <div
         style={{
           padding: `${settings.layout.margins.top}mm ${settings.layout.margins.right}mm ${settings.layout.margins.bottom + 5}mm ${settings.layout.margins.left}mm`,
         }}
       >
         {visibleSections.map((section) => (
-          <div
+          <DraggableSection
             key={section.id}
+            sectionId={section.id}
             style={{ marginBottom: sectionSpacing }}
             className={template.style.sectionStyle === 'card' ? 'p-4 bg-gray-50 rounded-lg' : ''}
+            isEditMode={previewEditMode}
           >
             {section.type === 'contact' && <ContactPreview data={section.data as ContactData} theme={settings.theme} />}
             {section.type === 'summary' && <SummaryPreview data={section.data as SummaryData} theme={settings.theme} title={section.title} />}
@@ -70,7 +82,7 @@ export function ResumePreview() {
             {section.type === 'projects' && <ProjectsPreview data={section.data as ProjectsData} theme={settings.theme} title={section.title} />}
             {section.type === 'certifications' && <CertificationsPreview data={section.data as CertificationsData} theme={settings.theme} title={section.title} />}
             {section.type === 'custom' && <CustomSectionPreview data={section.data as CustomData} title={section.title} theme={settings.theme} />}
-          </div>
+          </DraggableSection>
         ))}
       </div>
     </div>

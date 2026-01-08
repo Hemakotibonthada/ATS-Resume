@@ -13,6 +13,7 @@ interface ResumeStore {
   // Editor state
   activeSection: string | null;
   isEditing: boolean;
+  previewEditMode: boolean;
   
   // Actions
   createResume: (title: string) => void;
@@ -28,6 +29,7 @@ interface ResumeStore {
   // Editor actions
   setActiveSection: (sectionId: string | null) => void;
   setIsEditing: (isEditing: boolean) => void;
+  setPreviewEditMode: (enabled: boolean) => void;
   
   // Version control
   saveVersion: (message: string) => void;
@@ -141,6 +143,7 @@ export const useResumeStore = create<ResumeStore>()(
         versions: [],
         activeSection: null,
         isEditing: false,
+        previewEditMode: false,
 
         createResume: (title: string) => {
           const newResume = createDefaultResume(title);
@@ -245,6 +248,10 @@ export const useResumeStore = create<ResumeStore>()(
 
         setIsEditing: (isEditing: boolean) => {
           set({ isEditing });
+        },
+
+        setPreviewEditMode: (enabled: boolean) => {
+          set({ previewEditMode: enabled });
         },
 
         saveVersion: (message: string) => {

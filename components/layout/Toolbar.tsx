@@ -25,13 +25,16 @@ import {
   Layout,
   Lightbulb,
   AlertCircle,
-  Sparkles
+  Sparkles,
+  Edit3
 } from 'lucide-react';
 
 export function Toolbar() {
   const currentResume = useResumeStore((state) => state.currentResume);
   const saveVersion = useResumeStore((state) => state.saveVersion);
   const loadResume = useResumeStore((state) => state.loadResume);
+  const previewEditMode = useResumeStore((state) => state.previewEditMode);
+  const setPreviewEditMode = useResumeStore((state) => state.setPreviewEditMode);
   const [isExporting, setIsExporting] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -260,6 +263,23 @@ export function Toolbar() {
         >
           <AlertCircle className="w-4 h-4" />
           Fluff
+        </motion.button>
+
+        <div className="w-px h-6 bg-white/20" />
+
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setPreviewEditMode(!previewEditMode)}
+          className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all backdrop-blur-md shadow-lg ${
+            previewEditMode
+              ? 'text-white bg-gradient-to-r from-purple-600 to-pink-600'
+              : 'text-purple-700 bg-purple-100/80 hover:bg-purple-200/80'
+          }`}
+          title="Toggle Preview Edit Mode - Drag & drop sections, inline edit text"
+        >
+          <Edit3 className="w-4 h-4" />
+          {previewEditMode ? 'Edit Mode ON' : 'Edit Mode'}
         </motion.button>
 
         <div className="w-px h-6 bg-white/20" />
