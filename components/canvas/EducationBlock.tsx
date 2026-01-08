@@ -29,13 +29,15 @@ export function EducationBlock({ sectionId, isInteractive }: EducationBlockProps
   };
 
   const handleAddEducation = () => {
+    const now = new Date();
+    const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const newEducation: EducationItem = {
       id: uuidv4(),
       institution: 'University Name',
       degree: 'Bachelor of Science',
       field: 'Computer Science',
       location: '',
-      startDate: new Date().toISOString().split('T')[0],
+      startDate: yearMonth,
       endDate: null,
       gpa: '',
       honors: '',

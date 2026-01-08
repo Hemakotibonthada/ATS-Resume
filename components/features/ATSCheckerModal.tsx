@@ -2,7 +2,9 @@
 
 import { useResumeStore } from '@/stores';
 import { analyzeATS } from '@/lib/atsChecker';
-import { X, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { X, AlertCircle, CheckCircle, Info, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ATSAnalysis } from '@/types/resume';
 
 interface ATSCheckerModalProps {
   isOpen: boolean;
@@ -11,10 +13,28 @@ interface ATSCheckerModalProps {
 
 export function ATSCheckerModal({ isOpen, onClose }: ATSCheckerModalProps) {
   const currentResume = useResumeStore((state) => state.currentResume);
+  const [analysis, setAnalysis] = useState<ATSAnalysis | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  if (!isOpen || !currentResume) return null;
+  // Run analysis when modal opens or resume changes
+  useEffect(() => {
+    if (isOpen && currentResume) {
+      setAnalysis(analyzeATS(currentResume));
+    }
+  }, [isOpen, currentResume]);
 
-  const analysis = analyzeATS(currentResume);
+  const handleRefresh = () => {
+    if (!currentResume) return;
+    setIsRefreshing(true);
+    
+    // Add a small delay for visual feedback
+    setTimeout(() => {
+      setAnalysis(analyzeATS(currentResume));
+      setIsRefreshing(false);
+    }, 300);
+  };
+
+  if (!isOpen || !currentResume || !analysis) return null;
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
@@ -51,12 +71,22 @@ export function ATSCheckerModal({ isOpen, onClose }: ATSCheckerModalProps) {
               <p className="text-sm text-gray-600">Applicant Tracking System Analysis</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Refresh Analysis"
+            >
+              <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}

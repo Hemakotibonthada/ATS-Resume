@@ -120,3 +120,14 @@ export function formatDateRange(startDate: string, endDate: string | null, isCur
 
   return `${start} - ${end} · ${duration}`;
 }
+
+/**
+ * Format date range WITHOUT duration - ATS-friendly clean format
+ * Example: "Jan 2020 – May 2023"
+ */
+export function formatDateRangeClean(startDate: string, endDate: string | null, isCurrent?: boolean): string {
+  const start = formatDate(startDate);
+  const end = (isCurrent || !endDate) ? 'Present' : formatDate(endDate);
+
+  return `${start} – ${end}`;
+}

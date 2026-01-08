@@ -172,6 +172,15 @@ export function ResumePreview({
     );
   }
 
+  // Single page clean template (no bullet points)
+  if (template.id === 'single-page-clean') {
+    return (
+      <>
+        <SinglePageCleanTemplatePreview resume={finalResume} isEditMode={isEditMode} zoom={finalZoom} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} onResetZoom={handleResetZoom} />
+      </>
+    );
+  }
+
   // Timeline Career template
   if (template.id === 'timeline-style') {
     return (
@@ -578,36 +587,32 @@ function DevOpsTemplatePreview({ resume, isEditMode, zoom, onZoomIn, onZoomOut, 
                       <div key={category.id}>
                         <div className="flex flex-wrap gap-1.5">
                           {category.skills.map((skill) => {
-                            const getLevelDots = () => {
-                              const levels = { beginner: 1, intermediate: 2, advanced: 3, expert: 4 };
-                              const dots = levels[skill.level as keyof typeof levels] || 2;
-                              return (
-                                <div className="flex items-center gap-0.5 ml-1">
-                                  {[1, 2, 3, 4].map((i) => (
-                                    <div
-                                      key={i}
-                                      className="w-1 h-1 rounded-full"
-                                      style={{
-                                        backgroundColor: i <= dots ? settings.theme.primaryColor : '#d1d5db',
-                                      }}
-                                    />
-                                  ))}
-                                </div>
-                              );
+                            const getLevelText = (level?: string) => {
+                              const levelMap: { [key: string]: string } = {
+                                beginner: 'Beginner',
+                                intermediate: 'Intermediate',
+                                advanced: 'Advanced',
+                                expert: 'Expert'
+                              };
+                              return level ? levelMap[level.toLowerCase()] || level : '';
                             };
                             
                             return (
                               <div
                                 key={skill.id}
-                                className="flex items-center px-2 py-0.5 text-xs rounded"
+                                className="flex items-center px-2 py-1 text-xs rounded"
                                 style={{
                                   backgroundColor: settings.theme.primaryColor + '15',
                                   color: settings.theme.primaryColor,
                                   border: `1px solid ${settings.theme.primaryColor}40`,
+                                  minHeight: '24px',
+                                  lineHeight: '1.4'
                                 }}
                               >
                                 <span>{skill.name}</span>
-                                {skill.level && getLevelDots()}
+                                {skill.level && (
+                                  <span className="ml-1.5 text-xs opacity-75">({getLevelText(skill.level)})</span>
+                                )}
                               </div>
                             );
                           })}
@@ -844,22 +849,14 @@ function EducationPreview({ data, theme, title }: { data: EducationData; theme: 
 function SkillsPreview({ data, theme, title }: { data: SkillsData; theme: any; title: string }) {
   if (!data.categories || data.categories.length === 0) return null;
 
-  const getLevelDots = (level?: string) => {
-    const levels = { beginner: 1, intermediate: 2, advanced: 3, expert: 4 };
-    const dots = levels[level as keyof typeof levels] || 2;
-    return (
-      <div className="flex items-center gap-0.5 ml-1.5">
-        {[1, 2, 3, 4].map((i) => (
-          <div
-            key={i}
-            className="w-1.5 h-1.5 rounded-full"
-            style={{
-              backgroundColor: i <= dots ? theme.primaryColor : '#d1d5db',
-            }}
-          />
-        ))}
-      </div>
-    );
+  const getLevelText = (level?: string) => {
+    const levelMap: { [key: string]: string } = {
+      beginner: 'Beginner',
+      intermediate: 'Intermediate',
+      advanced: 'Advanced',
+      expert: 'Expert'
+    };
+    return level ? levelMap[level.toLowerCase()] || level : '';
   };
 
   return (
@@ -885,7 +882,9 @@ function SkillsPreview({ data, theme, title }: { data: SkillsData; theme: any; t
                   }}
                 >
                   <span>{skill.name}</span>
-                  {skill.level && getLevelDots(skill.level)}
+                  {skill.level && (
+                    <span className="ml-1.5 text-xs opacity-75">({getLevelText(skill.level)})</span>
+                  )}
                 </div>
               ))}
             </div>
@@ -1309,27 +1308,14 @@ function SinglePageExperiencePreview({ data, title, theme }: { data: ExperienceD
 
 // Single Page Skills Section
 function SinglePageSkillsPreview({ data, title, theme }: { data: SkillsData; title: string; theme: any }) {
-  const getLevelDots = (level: string) => {
-    const levels: { [key: string]: number } = {
-      'beginner': 1,
-      'intermediate': 2,
-      'advanced': 3,
-      'expert': 4
+  const getLevelText = (level: string) => {
+    const levelMap: { [key: string]: string } = {
+      'beginner': 'Beginner',
+      'intermediate': 'Intermediate',
+      'advanced': 'Advanced',
+      'expert': 'Expert'
     };
-    const count = levels[level.toLowerCase()] || 2;
-    return (
-      <div className="flex gap-0.5 ml-1.5">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="w-1.5 h-1.5 rounded-full"
-            style={{
-              backgroundColor: i < count ? theme.primaryColor : '#d1d5db'
-            }}
-          />
-        ))}
-      </div>
-    );
+    return levelMap[level.toLowerCase()] || level;
   };
 
   return (
@@ -1349,19 +1335,24 @@ function SinglePageSkillsPreview({ data, title, theme }: { data: SkillsData; tit
         style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(2, 1fr)', 
-          gap: '8px'
+          gap: '10px',
+          rowGap: '12px'
         }}
       >
         {data.categories.map((category, idx) => (
           <div key={idx}>
-            <h3 className="font-semibold text-xs mb-1" style={{ color: theme.secondaryColor }}>
+            <h3 className="font-semibold text-xs mb-1.5" style={{ color: theme.secondaryColor }}>
               {category.name}
             </h3>
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {category.skills.map((skill, sidx) => (
-                <div key={sidx} className="flex items-center justify-between">
-                  <span className="text-xs" style={{ color: '#444' }}>{skill.name}</span>
-                  {getLevelDots(skill.level || 'intermediate')}
+                <div key={sidx} className="flex flex-col" style={{ minHeight: '18px', paddingBottom: '3px' }}>
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-xs flex-1" style={{ color: '#444', lineHeight: '1.4' }}>{skill.name}</span>
+                    {skill.level && (
+                      <span className="text-xs opacity-75 whitespace-nowrap self-start">({getLevelText(skill.level)})</span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -1415,8 +1406,27 @@ function SinglePageEducationPreview({ data, title, theme }: { data: EducationDat
                 </>
               )}
             </div>
-            <span className="text-xs italic" style={{ color: '#666' }}>
-              {formatDateRange(item.startDate, item.endDate, false)}
+            <span className="text-xs italic whitespace-nowrap" style={{ color: '#666' }}>
+              {(() => {
+                const formatDateClean = (date: string) => {
+                  if (!date || date.trim() === '') return '';
+                  try {
+                    if (!date.includes('T') && date.split('-').length === 2) {
+                      const [year, month] = date.split('-');
+                      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                      return `${monthNames[parseInt(month) - 1]} ${year}`;
+                    }
+                    const d = new Date(date);
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    return `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+                  } catch {
+                    return '';
+                  }
+                };
+                const start = formatDateClean(item.startDate);
+                const end = item.endDate ? formatDateClean(item.endDate) : 'Present';
+                return `${start} – ${end}`;
+              })()}
             </span>
           </div>
         ))}
@@ -1543,6 +1553,251 @@ function SinglePageLanguagesPreview({ data, title, theme }: { data: LanguagesDat
             <span className="mx-1.5" style={{ color: '#666' }}>•</span>
             <span style={{ color: '#666' }}>{item.proficiency}</span>
           </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Single Page Clean Template - Same as Single Page but WITHOUT bullet points
+function SinglePageCleanTemplatePreview({ 
+  resume, 
+  isEditMode = false,
+  zoom = 1,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom
+}: { 
+  resume: any;
+  isEditMode?: boolean;
+  zoom?: number;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onResetZoom?: () => void;
+}) {
+  const { sections, settings } = resume;
+  const theme = settings.theme;
+  const margins = settings.layout.margins;
+  const { reorderSections } = useResumeStore();
+  
+  const visibleSections = sections
+    .filter((s: any) => s.visible)
+    .sort((a: any, b: any) => a.order - b.order);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = visibleSections.findIndex((s: any) => s.id === active.id);
+      const newIndex = visibleSections.findIndex((s: any) => s.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const reordered = arrayMove(visibleSections, oldIndex, newIndex);
+        reorderSections(reordered as any);
+      }
+    }
+  };
+
+  return (
+    <>
+      {/* Zoom Controls */}
+      <div className="fixed bottom-8 right-8 bg-white rounded-lg shadow-xl border border-gray-200 p-2 z-50 flex flex-col gap-2">
+        <button onClick={onZoomIn} className="p-2 hover:bg-purple-50 rounded transition-colors" title="Zoom In">
+          <ZoomIn size={20} className="text-purple-600" />
+        </button>
+        <div className="text-xs text-center font-medium text-gray-600 py-1">{Math.round(zoom * 100)}%</div>
+        <button onClick={onZoomOut} className="p-2 hover:bg-purple-50 rounded transition-colors" title="Zoom Out">
+          <ZoomOut size={20} className="text-purple-600" />
+        </button>
+        <div className="h-px bg-gray-200" />
+        <button onClick={onResetZoom} className="p-2 hover:bg-purple-50 rounded transition-colors" title="Reset Zoom">
+          <Maximize2 size={20} className="text-purple-600" />
+        </button>
+      </div>
+      {isEditMode && (
+        <div className="fixed top-20 right-8 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center gap-2 animate-pulse">
+          <span className="font-semibold">✨ Edit Mode Active</span>
+          <span className="text-xs opacity-90">Hover sections to edit • Drag to reorder</span>
+        </div>
+      )}
+      <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top center', transition: 'transform 0.2s ease-out' }}>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={visibleSections.map((s: any) => s.id)} strategy={verticalListSortingStrategy}>
+            <div
+              className="a4-page mx-auto print-exact bg-white"
+              style={{
+                width: `${settings.layout.pageSize.width}mm`,
+                minHeight: `${settings.layout.pageSize.height}mm`,
+                padding: `10mm 12mm 10mm 12mm`,
+                fontFamily: theme.fontPair.body,
+                fontSize: '9.5px',
+                lineHeight: '1.3',
+              }}
+            >
+      {/* Compact Header */}
+      {visibleSections.find((s: any) => s.type === 'contact') && (
+        <SinglePageContactPreview 
+          data={visibleSections.find((s: any) => s.type === 'contact').data} 
+          theme={theme}
+        />
+      )}
+
+      {/* Professional Summary */}
+      {visibleSections.find((s: any) => s.type === 'summary') && (
+        <DraggableSection sectionId={visibleSections.find((s: any) => s.type === 'summary').id} isEditMode={isEditMode}>
+          <SinglePageSummaryPreview 
+            data={visibleSections.find((s: any) => s.type === 'summary').data} 
+            title={visibleSections.find((s: any) => s.type === 'summary').title}
+            theme={theme}
+          />
+        </DraggableSection>
+      )}
+
+      {/* Experience - NO BULLETS */}
+      {visibleSections.find((s: any) => s.type === 'experience') && (
+        <DraggableSection sectionId={visibleSections.find((s: any) => s.type === 'experience').id} isEditMode={isEditMode}>
+          <SinglePageCleanExperiencePreview 
+            data={visibleSections.find((s: any) => s.type === 'experience').data} 
+            title={visibleSections.find((s: any) => s.type === 'experience').title}
+            theme={theme}
+          />
+        </DraggableSection>
+      )}
+
+      {/* Skills */}
+      {visibleSections.find((s: any) => s.type === 'skills') && (
+        <DraggableSection sectionId={visibleSections.find((s: any) => s.type === 'skills').id} isEditMode={isEditMode}>
+          <SinglePageSkillsPreview 
+            data={visibleSections.find((s: any) => s.type === 'skills').data} 
+            title={visibleSections.find((s: any) => s.type === 'skills').title}
+            theme={theme}
+          />
+        </DraggableSection>
+      )}
+
+      {/* Education */}
+      {visibleSections.find((s: any) => s.type === 'education') && (
+        <DraggableSection sectionId={visibleSections.find((s: any) => s.type === 'education').id} isEditMode={isEditMode}>
+          <SinglePageEducationPreview 
+            data={visibleSections.find((s: any) => s.type === 'education').data} 
+            title={visibleSections.find((s: any) => s.type === 'education').title}
+            theme={theme}
+          />
+        </DraggableSection>
+      )}
+
+      {/* Projects */}
+      {visibleSections.find((s: any) => s.type === 'projects') && (
+        <DraggableSection sectionId={visibleSections.find((s: any) => s.type === 'projects').id} isEditMode={isEditMode}>
+          <SinglePageProjectsPreview 
+            data={visibleSections.find((s: any) => s.type === 'projects').data} 
+            title={visibleSections.find((s: any) => s.type === 'projects').title}
+            theme={theme}
+          />
+        </DraggableSection>
+      )}
+
+      {/* Certifications */}
+      {visibleSections.find((s: any) => s.type === 'certifications') && (
+        <DraggableSection sectionId={visibleSections.find((s: any) => s.type === 'certifications').id} isEditMode={isEditMode}>
+          <SinglePageCertificationsPreview 
+            data={visibleSections.find((s: any) => s.type === 'certifications').data} 
+            title={visibleSections.find((s: any) => s.type === 'certifications').title}
+            theme={theme}
+          />
+        </DraggableSection>
+      )}
+
+      {/* Languages */}
+      {visibleSections.find((s: any) => s.type === 'languages') && (
+        <DraggableSection sectionId={visibleSections.find((s: any) => s.type === 'languages').id} isEditMode={isEditMode}>
+          <SinglePageLanguagesPreview 
+            data={visibleSections.find((s: any) => s.type === 'languages').data} 
+            title={visibleSections.find((s: any) => s.type === 'languages').title}
+            theme={theme}
+          />
+        </DraggableSection>
+      )}
+    </div>
+          </SortableContext>
+        </DndContext>
+      </div>
+    </>
+  );
+}
+
+// Single Page Clean Experience Section - WITHOUT BULLET POINTS
+function SinglePageCleanExperiencePreview({ data, title, theme }: { data: ExperienceData; title: string; theme: any }) {
+  return (
+    <div className="mb-2.5">
+      <h2 
+        className="text-xs font-bold mb-1.5 uppercase tracking-wide" 
+        style={{ 
+          color: theme.primaryColor,
+          fontFamily: theme.fontPair.heading,
+          borderBottom: `1px solid ${theme.primaryColor}`,
+          paddingBottom: '1px'
+        }}
+      >
+        {title}
+      </h2>
+      <div className="space-y-2">
+        {data.items.map((item: ExperienceItem, idx: number) => (
+          <div key={idx}>
+            <div className="flex justify-between items-baseline mb-0.5">
+              <div>
+                <span className="font-bold text-xs" style={{ color: theme.secondaryColor }}>
+                  {item.position}
+                </span>
+                <span className="text-xs mx-1.5" style={{ color: '#666' }}>•</span>
+                <span className="text-xs font-medium" style={{ color: '#444' }}>
+                  {item.company}
+                </span>
+                {item.location && (
+                  <>
+                    <span className="text-xs mx-1.5" style={{ color: '#666' }}>•</span>
+                    <span className="text-xs" style={{ color: '#666' }}>
+                      {item.location}
+                    </span>
+                  </>
+                )}
+              </div>
+              <span className="text-xs italic" style={{ color: '#666' }}>
+                {formatDateRange(item.startDate, item.endDate, item.current)}
+              </span>
+            </div>
+            {/* Description without bullets - plain paragraphs */}
+            {item.description && (
+              <div className="space-y-0.5 ml-0">
+                {item.description.split('\n').filter(line => line.trim()).map((line, i) => (
+                  <p key={i} className="text-xs" style={{ color: '#333', lineHeight: '1.3' }}>
+                    {line.trim().replace(/^[-•]\s*/, '')}
+                  </p>
+                ))}
+              </div>
+            )}
+            {/* Highlights without bullets - plain paragraphs */}
+            {item.highlights && item.highlights.length > 0 && (
+              <div className="space-y-0.5 ml-0">
+                {item.highlights.map((highlight, hidx) => (
+                  <p key={hidx} className="text-xs" style={{ color: '#333', lineHeight: '1.3' }}>
+                    {highlight}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </div>

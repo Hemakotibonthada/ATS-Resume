@@ -2,7 +2,7 @@
 
 import { useResumeStore } from '@/stores';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { 
   DndContext, 
   closestCenter,
@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { SectionType, ResumeSection } from '@/types';
 import { SectionManagerModal } from '@/components/features/SectionManagerModal';
+import { analyzeATS } from '@/lib/atsChecker';
 
 const sectionIcons: Record<SectionType, any> = {
   contact: User,
@@ -114,6 +115,19 @@ export function Sidebar() {
   const addSection = useResumeStore((state) => state.addSection);
   const reorderSections = useResumeStore((state) => state.reorderSections);
   const [showSectionManager, setShowSectionManager] = useState(false);
+
+  // Calculate resume score dynamically
+  const resumeScore = useMemo(() => {
+    if (!currentResume) return 0;
+    const analysis = analyzeATS(currentResume);
+    return analysis.score;
+  }, [currentResume]);
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'bg-green-500';
+    if (score >= 60) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -206,10 +220,18 @@ export function Sidebar() {
           <p className="font-medium mb-1">Resume Score</p>
           <div className="flex items-center gap-2">
             <div className="flex-1 bg-gray-200 rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: '75%' }} />
+              <div 
+                className={`h-2 rounded-full transition-all duration-500 ${getScoreColor(resumeScore)}`} 
+                style={{ width: `${resumeScore}%` }} 
+              />
             </div>
-            <span className="font-medium">75%</span>
+            <span className="font-medium">{resumeScore}%</span>
           </div>
+          <p className="text-xs mt-1 text-gray-400">
+            {resumeScore >= 80 && '✓ Excellent'}
+            {resumeScore >= 60 && resumeScore < 80 && '⚠ Good'}
+            {resumeScore < 60 && '⚠ Needs work'}
+          </p>
         </div>
       </div>
     </div>

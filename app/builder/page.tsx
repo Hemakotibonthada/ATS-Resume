@@ -5,6 +5,7 @@ import { ResumeEditor } from '@/components/editor/ResumeEditor';
 import { ResumePreview } from '@/components/preview/ResumePreview';
 import { Toolbar } from '@/components/layout/Toolbar';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { KeywordHighlighter } from '@/components/features/KeywordHighlighter';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
 export default function BuilderPage() {
@@ -68,6 +69,9 @@ export default function BuilderPage() {
           </PanelGroup>
         </div>
       </div>
+
+      {/* Keyword Highlighter - Floating Widget */}
+      <KeywordHighlighter />
     </div>
   );
 }

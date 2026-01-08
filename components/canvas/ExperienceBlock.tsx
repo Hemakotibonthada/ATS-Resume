@@ -79,11 +79,13 @@ export function ExperienceBlock({
   };
 
   const handleAddExperience = () => {
+    const now = new Date();
+    const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const newExp: ExperienceItem = {
       id: uuidv4(),
       company: 'New Company',
       position: 'Job Title',
-      startDate: new Date().toISOString().split('T')[0],
+      startDate: yearMonth,
       endDate: null,
       location: '',
       highlights: [''],

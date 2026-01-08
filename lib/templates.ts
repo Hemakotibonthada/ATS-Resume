@@ -3,7 +3,7 @@
  * Different visual styles and layouts for the resume
  */
 
-export type TemplateId = 'modern' | 'classic' | 'minimal' | 'creative' | 'executive' | 'technical' | 'devops' | 'single-page' | 'compact-two-column' | 'timeline-style' | 'elegant-modern' | 'bold-professional' | 'minimalist-pro' | 'space-optimized';
+export type TemplateId = 'modern' | 'classic' | 'minimal' | 'creative' | 'executive' | 'technical' | 'devops' | 'single-page' | 'single-page-clean' | 'compact-two-column' | 'timeline-style' | 'elegant-modern' | 'bold-professional' | 'minimalist-pro' | 'space-optimized';
 
 export interface Template {
   id: TemplateId;
@@ -126,6 +126,20 @@ export const templates: Template[] = [
     name: 'Single Page Pro',
     description: 'Perfectly aligned single-page layout with optimal spacing',
     preview: '📄',
+    style: {
+      layout: 'single-column',
+      headerAlignment: 'center',
+      sectionStyle: 'minimal',
+      accentPosition: 'top',
+      spacing: 'compact',
+      bulletStyle: 'disc',
+    },
+  },
+  {
+    id: 'single-page-clean',
+    name: 'Single Page Clean',
+    description: 'Single-page professional layout without bullet points',
+    preview: '📋',
     style: {
       layout: 'single-column',
       headerAlignment: 'center',
