@@ -156,15 +156,11 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
                         title={color.name}
                       >
                         {theme.primaryColor === color.value && (
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            className="absolute inset-0 flex items-center justify-center"
-                          >
+                          <div className="absolute inset-0 flex items-center justify-center">
                             <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
                               <div className="w-2 h-2 bg-purple-600 rounded-full" />
                             </div>
-                          </motion.div>
+                          </div>
                         )}
                       </button>
                     ))}
