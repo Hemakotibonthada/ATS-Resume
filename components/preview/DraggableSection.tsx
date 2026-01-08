@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { GripVertical, Edit2, Trash2, Eye } from 'lucide-react';
+import { useState } from 'react';
+import { GripVertical, Trash2, Eye, EyeOff } from 'lucide-react';
 import { useResumeStore } from '@/stores';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface DraggableSectionProps {
   sectionId: string;
@@ -19,61 +21,35 @@ export function DraggableSection({
   className,
   isEditMode 
 }: DraggableSectionProps) {
-  const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const dragRef = useRef<HTMLDivElement>(null);
   const currentResume = useResumeStore((state) => state.currentResume);
   const updateSection = useResumeStore((state) => state.updateSection);
-  const reorderSections = useResumeStore((state) => state.reorderSections);
   const deleteSection = useResumeStore((state) => state.deleteSection);
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ 
+    id: sectionId,
+    disabled: !isEditMode,
+  });
 
   if (!currentResume) return <div style={style} className={className}>{children}</div>;
 
   const section = currentResume.sections.find((s) => s.id === sectionId);
   if (!section) return <div style={style} className={className}>{children}</div>;
 
-  const handleDragStart = (e: React.DragEvent) => {
-    if (!isEditMode) return;
-    setIsDragging(true);
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', sectionId);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    if (!isEditMode) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    if (!isEditMode) return;
-    e.preventDefault();
-    const draggedId = e.dataTransfer.getData('text/plain');
-    
-    if (draggedId === sectionId) return;
-
-    const sections = [...currentResume.sections].sort((a, b) => a.order - b.order);
-    const draggedIndex = sections.findIndex((s) => s.id === draggedId);
-    const targetIndex = sections.findIndex((s) => s.id === sectionId);
-
-    if (draggedIndex === -1 || targetIndex === -1) return;
-
-    const draggedSection = sections[draggedIndex];
-    sections.splice(draggedIndex, 1);
-    sections.splice(targetIndex, 0, draggedSection);
-
-    reorderSections(sections);
-  };
-
-  const handleToggleVisibility = () => {
+  const handleToggleVisibility = (e: React.MouseEvent) => {
+    e.stopPropagation();
     updateSection(sectionId, { visible: !section.visible });
   };
 
-  const handleDelete = () => {
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (confirm(`Delete section "${section.title}"?`)) {
       deleteSection(sectionId);
     }
@@ -87,55 +63,85 @@ export function DraggableSection({
     );
   }
 
+  const dragStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
     <div
-      ref={dragRef}
-      draggable={isEditMode}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      ref={setNodeRef}
       style={{
         ...style,
-        opacity: isDragging ? 0.5 : 1,
+        ...dragStyle,
         position: 'relative',
-        cursor: isEditMode ? 'move' : 'default',
         border: isHovered ? '2px dashed #9333ea' : '2px dashed transparent',
         borderRadius: '8px',
-        transition: 'all 0.2s ease',
+        transition: isDragging ? transition : 'all 0.2s ease',
+        backgroundColor: isDragging ? '#faf5ff' : 'transparent',
+        boxShadow: isDragging ? '0 10px 40px rgba(147, 51, 234, 0.3)' : 'none',
       }}
       className={className}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Edit Controls Overlay */}
-      {isEditMode && isHovered && (
+      {isEditMode && isHovered && !isDragging && (
         <div
-          className="absolute -top-10 right-0 flex items-center gap-2 bg-purple-600 text-white px-3 py-1.5 rounded-lg shadow-lg z-50"
-          style={{ fontSize: '12px' }}
+          className="absolute -top-12 left-0 right-0 flex items-center justify-between bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fadeIn"
+          onClick={(e) => e.stopPropagation()}
         >
-          <GripVertical className="w-4 h-4 cursor-grab" />
-          <span className="font-medium text-xs">{section.title}</span>
-          <button
-            onClick={handleToggleVisibility}
-            className="hover:bg-purple-700 p-1 rounded transition-colors"
-            title={section.visible ? 'Hide section' : 'Show section'}
-          >
-            <Eye className="w-3.5 h-3.5" />
-          </button>
-          {section.type === 'custom' && (
+          <div className="flex items-center gap-3">
             <button
-              onClick={handleDelete}
-              className="hover:bg-red-600 p-1 rounded transition-colors"
-              title="Delete section"
+              {...listeners}
+              {...attributes}
+              className="cursor-grab active:cursor-grabbing hover:bg-white/20 p-1.5 rounded transition-colors"
+              title="Drag to reorder"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <GripVertical className="w-5 h-5" />
             </button>
-          )}
+            <span className="font-semibold text-sm">{section.title}</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleToggleVisibility}
+              className="hover:bg-white/20 p-1.5 rounded transition-colors"
+              title={section.visible ? 'Hide section' : 'Show section'}
+            >
+              {section.visible ? (
+                <Eye className="w-4 h-4" />
+              ) : (
+                <EyeOff className="w-4 h-4" />
+              )}
+            </button>
+            {section.type === 'custom' && (
+              <button
+                onClick={handleDelete}
+                className="hover:bg-red-500 p-1.5 rounded transition-colors"
+                title="Delete section"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       )}
 
-      {children}
+      {/* Dragging Indicator */}
+      {isDragging && (
+        <div className="absolute inset-0 flex items-center justify-center bg-purple-100/90 rounded-lg z-40">
+          <div className="text-center">
+            <GripVertical className="w-8 h-8 text-purple-600 mx-auto mb-2 animate-bounce" />
+            <p className="text-sm font-semibold text-purple-900">Moving {section.title}...</p>
+          </div>
+        </div>
+      )}
+
+      <div style={{ pointerEvents: isDragging ? 'none' : 'auto' }}>
+        {children}
+      </div>
     </div>
   );
 }

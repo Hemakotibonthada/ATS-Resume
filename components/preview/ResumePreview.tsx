@@ -8,10 +8,40 @@ import { ContactQRCode } from '@/components/features/QRCodeGenerator';
 import { getTemplate } from '@/lib/templates';
 import ReactMarkdown from 'react-markdown';
 import { DraggableSection } from './DraggableSection';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { useState } from 'react';
 
 export function ResumePreview() {
   const currentResume = useResumeStore((state) => state.currentResume);
   const previewEditMode = useResumeStore((state) => state.previewEditMode);
+  const reorderSections = useResumeStore((state) => state.reorderSections);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required before drag starts
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   if (!currentResume) {
     return <div>No resume to preview</div>;
@@ -22,6 +52,29 @@ export function ResumePreview() {
   const visibleSections = sections
     .filter((s) => s.visible)
     .sort((a, b) => a.order - b.order);
+
+  const handleDragStart = (event: DragEndEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (over && active.id !== over.id) {
+      const oldIndex = visibleSections.findIndex((s) => s.id === active.id);
+      const newIndex = visibleSections.findIndex((s) => s.id === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const reordered = arrayMove(visibleSections, oldIndex, newIndex);
+        reorderSections(reordered);
+      }
+    }
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
 
   // Log for debugging
   console.log('Current templateId:', templateId, 'Template:', template.id);
@@ -43,6 +96,8 @@ export function ResumePreview() {
     relaxed: '32px',
   };
   const sectionSpacing = spacingMap[template.style.spacing];
+
+  const sectionIds = visibleSections.map((s) => s.id);
 
   return (
     <div
@@ -66,24 +121,34 @@ export function ResumePreview() {
           padding: `${settings.layout.margins.top}mm ${settings.layout.margins.right}mm ${settings.layout.margins.bottom + 5}mm ${settings.layout.margins.left}mm`,
         }}
       >
-        {visibleSections.map((section) => (
-          <DraggableSection
-            key={section.id}
-            sectionId={section.id}
-            style={{ marginBottom: sectionSpacing }}
-            className={template.style.sectionStyle === 'card' ? 'p-4 bg-gray-50 rounded-lg' : ''}
-            isEditMode={previewEditMode}
-          >
-            {section.type === 'contact' && <ContactPreview data={section.data as ContactData} theme={settings.theme} />}
-            {section.type === 'summary' && <SummaryPreview data={section.data as SummaryData} theme={settings.theme} title={section.title} />}
-            {section.type === 'experience' && <ExperiencePreview data={section.data as ExperienceData} theme={settings.theme} title={section.title} />}
-            {section.type === 'education' && <EducationPreview data={section.data as EducationData} theme={settings.theme} title={section.title} />}
-            {section.type === 'skills' && <SkillsPreview data={section.data as SkillsData} theme={settings.theme} title={section.title} />}
-            {section.type === 'projects' && <ProjectsPreview data={section.data as ProjectsData} theme={settings.theme} title={section.title} />}
-            {section.type === 'certifications' && <CertificationsPreview data={section.data as CertificationsData} theme={settings.theme} title={section.title} />}
-            {section.type === 'custom' && <CustomSectionPreview data={section.data as CustomData} title={section.title} theme={settings.theme} />}
-          </DraggableSection>
-        ))}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          <SortableContext items={sectionIds} strategy={verticalListSortingStrategy}>
+            {visibleSections.map((section) => (
+              <DraggableSection
+                key={section.id}
+                sectionId={section.id}
+                style={{ marginBottom: sectionSpacing }}
+                className={template.style.sectionStyle === 'card' ? 'p-4 bg-gray-50 rounded-lg' : ''}
+                isEditMode={previewEditMode}
+              >
+                {section.type === 'contact' && <ContactPreview data={section.data as ContactData} theme={settings.theme} />}
+                {section.type === 'summary' && <SummaryPreview data={section.data as SummaryData} theme={settings.theme} title={section.title} />}
+                {section.type === 'experience' && <ExperiencePreview data={section.data as ExperienceData} theme={settings.theme} title={section.title} />}
+                {section.type === 'education' && <EducationPreview data={section.data as EducationData} theme={settings.theme} title={section.title} />}
+                {section.type === 'skills' && <SkillsPreview data={section.data as SkillsData} theme={settings.theme} title={section.title} />}
+                {section.type === 'projects' && <ProjectsPreview data={section.data as ProjectsData} theme={settings.theme} title={section.title} />}
+                {section.type === 'certifications' && <CertificationsPreview data={section.data as CertificationsData} theme={settings.theme} title={section.title} />}
+                {section.type === 'custom' && <CustomSectionPreview data={section.data as CustomData} title={section.title} theme={settings.theme} />}
+              </DraggableSection>
+            ))}
+          </SortableContext>
+        </DndContext>
       </div>
     </div>
   );
