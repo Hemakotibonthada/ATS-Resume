@@ -2,6 +2,7 @@
 
 import { useResumeStore } from '@/stores';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { 
   DndContext, 
   closestCenter,
@@ -29,9 +30,11 @@ import {
   FolderOpen,
   Award,
   Plus,
-  GripVertical
+  GripVertical,
+  Settings
 } from 'lucide-react';
 import { SectionType, ResumeSection } from '@/types';
+import { SectionManagerModal } from '@/components/features/SectionManagerModal';
 
 const sectionIcons: Record<SectionType, any> = {
   contact: User,
@@ -110,6 +113,7 @@ export function Sidebar() {
   const setActiveSection = useResumeStore((state) => state.setActiveSection);
   const addSection = useResumeStore((state) => state.addSection);
   const reorderSections = useResumeStore((state) => state.reorderSections);
+  const [showSectionManager, setShowSectionManager] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -150,11 +154,21 @@ export function Sidebar() {
   };
 
   return (
-    <div className="w-64 border-r border-gray-200 bg-white">
-      <div className="p-4">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          Sections
-        </h2>
+    <>
+      <div className="w-64 border-r border-gray-200 bg-white">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+              Sections
+            </h2>
+            <button
+              onClick={() => setShowSectionManager(true)}
+              className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+              title="Manage Sections"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          </div>
         
         <DndContext
           sensors={sensors}
@@ -198,6 +212,11 @@ export function Sidebar() {
           </div>
         </div>
       </div>
-    </div>
+
+      <SectionManagerModal
+        isOpen={showSectionManager}
+        onClose={() => setShowSectionManager(false)}
+      />
+    </>
   );
 }

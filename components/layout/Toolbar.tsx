@@ -11,6 +11,7 @@ import { JobMatcherModal } from '@/components/features/JobMatcherModal';
 import { TemplatePickerModal } from '@/components/features/TemplatePickerModal';
 import SemanticAnalyzerModal from '@/components/features/SemanticAnalyzerModal';
 import FluffDetectorModal from '@/components/features/FluffDetectorModal';
+import { LayoutEditorModal } from '@/components/features/LayoutEditorModal';
 import { motion } from 'framer-motion';
 import { 
   Save, 
@@ -39,6 +40,7 @@ export function Toolbar() {
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [showSemanticAnalyzer, setShowSemanticAnalyzer] = useState(false);
   const [showFluffDetector, setShowFluffDetector] = useState(false);
+  const [showLayoutEditor, setShowLayoutEditor] = useState(false);
 
   const handleSaveVersion = () => {
     const message = prompt('Enter version message:');
@@ -206,6 +208,17 @@ export function Toolbar() {
         <motion.button
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
+          onClick={() => setShowLayoutEditor(true)}
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-700 bg-purple-100/80 hover:bg-purple-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
+          title="Customize Layout"
+        >
+          <Layout className="w-4 h-4" />
+          Customize
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowATSChecker(true)}
           className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-700 bg-green-100/80 hover:bg-green-200/80 rounded-lg transition-all backdrop-blur-md shadow-lg"
           title="ATS Checker"
@@ -286,6 +299,11 @@ export function Toolbar() {
       <TemplatePickerModal 
         isOpen={showTemplatePicker} 
         onClose={() => setShowTemplatePicker(false)} 
+      />
+
+      <LayoutEditorModal
+        isOpen={showLayoutEditor}
+        onClose={() => setShowLayoutEditor(false)}
       />
 
       {currentResume && (
