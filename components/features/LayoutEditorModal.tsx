@@ -18,10 +18,18 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
 
   if (!currentResume) return null;
 
+  // Ensure theme object exists with defaults
+  const theme = currentResume.theme || {
+    primaryColor: '#3b82f6',
+    fontFamily: 'Inter, sans-serif',
+    fontSize: '11px',
+    spacing: 'normal' as const,
+  };
+
   const handleThemeColorChange = (color: string) => {
     updateResume({
       theme: {
-        ...currentResume.theme,
+        ...theme,
         primaryColor: color,
       },
     });
@@ -30,7 +38,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
   const handleFontChange = (font: string) => {
     updateResume({
       theme: {
-        ...currentResume.theme,
+        ...theme,
         fontFamily: font,
       },
     });
@@ -40,7 +48,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
     const sizeMap = { small: '10px', medium: '11px', large: '12px' };
     updateResume({
       theme: {
-        ...currentResume.theme,
+        ...theme,
         fontSize: sizeMap[size],
       },
     });
@@ -49,7 +57,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
   const handleSpacingChange = (spacing: 'compact' | 'normal' | 'relaxed') => {
     updateResume({
       theme: {
-        ...currentResume.theme,
+        ...theme,
         spacing,
       },
     });
@@ -137,7 +145,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
                         onClick={() => handleThemeColorChange(color.value)}
                         className={`
                           relative h-12 rounded-lg border-2 transition-all hover:scale-105
-                          ${currentResume.theme.primaryColor === color.value
+                          ${theme.primaryColor === color.value
                             ? 'border-purple-600 ring-2 ring-purple-200'
                             : 'border-gray-200'
                           }
@@ -145,7 +153,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
                         style={{ backgroundColor: color.value }}
                         title={color.name}
                       >
-                        {currentResume.theme.primaryColor === color.value && (
+                        {theme.primaryColor === color.value && (
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
@@ -161,7 +169,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
                   </div>
                   <input
                     type="color"
-                    value={currentResume.theme.primaryColor}
+                    value={theme.primaryColor}
                     onChange={(e) => handleThemeColorChange(e.target.value)}
                     className="w-full h-10 rounded-lg cursor-pointer"
                   />
@@ -180,7 +188,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
                         onClick={() => handleFontChange(font.value)}
                         className={`
                           w-full text-left px-4 py-3 rounded-lg border-2 transition-all
-                          ${currentResume.theme.fontFamily === font.value
+                          ${theme.fontFamily === font.value
                             ? 'border-purple-600 bg-purple-50'
                             : 'border-gray-200 hover:border-purple-300'
                           }
@@ -203,7 +211,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
                         onClick={() => handleFontSizeChange(size)}
                         className={`
                           px-4 py-3 rounded-lg border-2 transition-all capitalize
-                          ${currentResume.theme.fontSize === { small: '10px', medium: '11px', large: '12px' }[size]
+                          ${theme.fontSize === { small: '10px', medium: '11px', large: '12px' }[size]
                             ? 'border-purple-600 bg-purple-50'
                             : 'border-gray-200 hover:border-purple-300'
                           }
@@ -225,7 +233,7 @@ export function LayoutEditorModal({ isOpen, onClose }: LayoutEditorModalProps) {
                         onClick={() => handleSpacingChange(spacing)}
                         className={`
                           px-4 py-3 rounded-lg border-2 transition-all capitalize
-                          ${currentResume.theme.spacing === spacing
+                          ${theme.spacing === spacing
                             ? 'border-purple-600 bg-purple-50'
                             : 'border-gray-200 hover:border-purple-300'
                           }
