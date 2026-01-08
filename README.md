@@ -192,7 +192,7 @@ MIT - Do whatever you want with it!
 
 **Port already in use?**
 ```bash
-npm run dev -- -p 3001
+npm run dev -- -p 3000
 ```
 
 **Changes not saving?**

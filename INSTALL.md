@@ -188,7 +188,7 @@ netstat -ano | findstr :3000
 taskkill /PID <PID> /F
 
 # Or use a different port:
-npm run dev -- -p 3001
+npm run dev -- -p 3000
 ```
 
 ### Issue: "Module not found" errors

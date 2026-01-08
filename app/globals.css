@@ -177,3 +177,21 @@
 * {
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
+
+/* React Resizable Panels Styles */
+[data-panel-group] {
+  display: flex;
+}
+
+[data-panel] {
+  overflow: auto;
+}
+
+[data-panel-resize-handle] {
+  flex-shrink: 0;
+  position: relative;
+}
+
+[data-panel-resize-handle]:focus {
+  outline: none;
+}
