@@ -212,11 +212,12 @@ export function Sidebar() {
           </div>
         </div>
       </div>
+    </div>
 
-      <SectionManagerModal
-        isOpen={showSectionManager}
-        onClose={() => setShowSectionManager(false)}
-      />
-    </>
+    <SectionManagerModal
+      isOpen={showSectionManager}
+      onClose={() => setShowSectionManager(false)}
+    />
+  </>
   );
 }
